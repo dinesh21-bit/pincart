@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pincart</title>
+
+<style>
+:root{
+ --headerColor:#111;
+ --footerColor:#111;
+ --brandColor:#ffffff;
+ --discountColor:#e60023;
+}
+
+body{
+ margin:0;
+ font-family:Arial, sans-serif;
+ background:#f4f6f9;
+}
+
+header{
+ background:var(--headerColor);
+ color:white;
+ padding:15px;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ flex-wrap:wrap;
+}
+
+.brand{
+ display:flex;
+ align-items:center;
+ cursor:pointer;
+}
+
+.brand img{
+ width:40px;
+ height:40px;
+ margin-right:10px;
+ border-radius:50%;
+}
+
+.brand h1{
+ margin:0;
+ color:var(--brandColor);
+}
+
+#search{
+ padding:8px;
+ width:200px;
+ max-width:100%;
+}
+
+/* SORT BUTTONS HORIZONTAL */
+.filters{
+ display:flex;
+ justify-content:center;
+ flex-wrap:wrap;
+ gap:10px;
+ padding:10px;
+}
+
+.filters button{
+ padding:8px 12px;
+ cursor:pointer;
+ border:none;
+ background:#ddd;
+ border-radius:5px;
+}
+
+.products{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+ gap:20px;
+ padding:20px;
+}
+
+.card{
+ background:white;
+ padding:15px;
+ border-radius:10px;
+ box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.card img{
+ width:100%;
+ height:200px;
+ object-fit:cover;
+ border-radius:8px;
+}
+
+.price{
+ font-weight:bold;
+}
+
+.discount{
+ color:var(--discountColor);
+ font-weight:bold;
+ margin-left:8px;
+}
+
+.buy{
+ display:inline-block;
+ background:#ff9900;
+ color:white;
+ padding:8px 12px;
+ text-decoration:none;
+ border-radius:5px;
+ margin-top:8px;
+}
+
+.deleteBtn{
+ background:red;
+ color:white;
+ border:none;
+ margin-top:8px;
+ border-radius:5px;
+ padding:8px 12px;
+}
+
+footer{
+ background:var(--footerColor);
+ color:white;
+ text-align:center;
+ padding:20px;
+}
+
+.panel{
+ display:none;
+ position:fixed;
+ top:50%;
+ left:50%;
+ transform:translate(-50%,-50%);
+ background:white;
+ padding:20px;
+ width:300px;
+ z-index:1000;
+ box-shadow:0 0 10px black;
+}
+
+.panel input, .panel textarea{
+ width:100%;
+ margin-bottom:10px;
+ padding:6px;
+}
+
+.overlay{
+ display:none;
+ position:fixed;
+ width:100%;
+ height:100%;
+ background:rgba(0,0,0,0.5);
+ top:0;
+ left:0;
+}
+
+.cartCursor{
+ cursor:url('https://cdn-icons-png.flaticon.com/32/263/263142.png'), auto;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+ <div class="brand">
+  <img id="logo" src="https://via.placeholder.com/40">
+  <h1>Pincart</h1>
+ </div>
+ <input type="text" id="search" placeholder="Search products...">
+</header>
+
+<div class="filters">
+ <button onclick="sortProducts('low')">Low → High</button>
+ <button onclick="sortProducts('high')">High → Low</button>
+ <button onclick="sortProducts('popular')">Popularity</button>
+ <button onclick="sortProducts('newest')">Newest</button>
+ <button onclick="sortProducts('relevance')">Relevance</button>
+</div>
+
+<div class="products" id="productList"></div>
+
+<footer>
+ © 2026 Pincart | Affiliate Store
+</footer>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="panel" id="adminPanel">
+ <h3>Add Product</h3>
+ <input type="text" id="title" placeholder="Title">
+ <textarea id="desc" placeholder="Description"></textarea>
+ <input type="number" id="price" placeholder="Original Price">
+ <input type="number" id="discount" placeholder="Discount %">
+ <input type="text" id="link" placeholder="Amazon Link">
+ <input type="file" id="images" multiple>
+ <button onclick="addProduct()">Add</button>
+</div>
+
+<div class="panel" id="brandPanel">
+ <h3>Change Colors</h3>
+ <input type="color" id="headerColor">
+ <input type="color" id="footerColor">
+ <input type="color" id="brandColor">
+ <input type="color" id="discountColor">
+ <button onclick="applyColors()">Apply</button>
+</div>
+
+<script>
+let products = JSON.parse(localStorage.getItem("pincart")) || [];
+let deleteMode = false;
+let isAdmin = false;
+const ADMIN_PASSWORD = "Dinesh@123";
+
+const overlay = document.getElementById("overlay");
+const adminPanel = document.getElementById("adminPanel");
+const brandPanel = document.getElementById("brandPanel");
+
+const headerColor = document.getElementById("headerColor");
+const footerColor = document.getElementById("footerColor");
+const brandColor = document.getElementById("brandColor");
+const discountColor = document.getElementById("discountColor");
+
+/* Load Saved Colors */
+const savedColors = JSON.parse(localStorage.getItem("pincartColors"));
+if(savedColors){
+ for(let key in savedColors){
+  document.documentElement.style.setProperty(key, savedColors[key]);
+ }
+}
+
+/* Load Saved Logo */
+let savedLogo = localStorage.getItem("pincartLogo");
+if(savedLogo){
+ document.getElementById("logo").src = savedLogo;
+}
+
+function save(){
+ localStorage.setItem("pincart",JSON.stringify(products));
+}
+
+function render(list=products){
+ const container=document.getElementById("productList");
+ container.innerHTML="";
+ list.forEach((p,i)=>{
+  container.innerHTML+=`
+  <div class="card">
+   <img src="${p.images[0]}">
+   <h3>${p.title}</h3>
+   <p>${p.desc}</p>
+   <p class="price">₹${p.price}
+   <span class="discount">-${p.discount}%</span></p>
+   <a href="${p.link}" target="_blank"
+   class="buy"
+   onclick="trackView(${i}); cartEffect()">View on Amazon</a>
+   ${deleteMode ? `<button class="deleteBtn" onclick="deleteProduct(${i})">Delete</button>` : ``}
+  </div>`;
+ });
+}
+render();
+
+/* Admin Access */
+function askAdminAccess(){
+ let pass = prompt("Enter Admin Password:");
+ if(pass === ADMIN_PASSWORD){
+   isAdmin = true;
+   alert("Admin Access Granted ✅");
+ } else {
+   alert("Wrong Password ❌");
+ }
+}
+
+/* Add Product */
+function addProduct(){
+ if(!isAdmin){ alert("Admin Only ❌"); return; }
+
+ const title=document.getElementById("title").value;
+ const desc=document.getElementById("desc").value;
+ const price=Number(document.getElementById("price").value);
+ const discount=Number(document.getElementById("discount").value);
+ const link=document.getElementById("link").value;
+ const files=document.getElementById("images").files;
+
+ if(files.length === 0){
+  alert("Upload at least one image");
+  return;
+ }
+
+ let images=[];
+ let count=0;
+
+ for(let i=0;i<files.length;i++){
+  const reader=new FileReader();
+  reader.onload=function(e){
+   images.push(e.target.result);
+   count++;
+   if(count===files.length){
+    products.push({
+     title,desc,price,discount,link,images,
+     views:0,
+     created:Date.now()
+    });
+    save();
+    render();
+    closePanels();
+   }
+  }
+  reader.readAsDataURL(files[i]);
+ }
+}
+
+function deleteProduct(index){
+ if(confirm("Delete this product?")){
+  products.splice(index,1);
+  save();
+  render();
+ }
+}
+
+function trackView(index){
+ products[index].views++;
+ save();
+}
+
+/* SORTING */
+function sortProducts(type){
+ let sorted=[...products];
+
+ if(type==="low") sorted.sort((a,b)=>a.price-b.price);
+ if(type==="high") sorted.sort((a,b)=>b.price-a.price);
+ if(type==="popular") sorted.sort((a,b)=>b.views-a.views);
+ if(type==="newest") sorted.sort((a,b)=>b.created-a.created);
+ if(type==="relevance"){
+  const searchText=document.getElementById("search").value.toLowerCase();
+  sorted.sort((a,b)=>{
+   return b.title.toLowerCase().includes(searchText) -
+          a.title.toLowerCase().includes(searchText);
+  });
+ }
+
+ render(sorted);
+}
+
+document.getElementById("search").addEventListener("input",function(){
+ render(products.filter(p =>
+  p.title.toLowerCase().includes(this.value.toLowerCase())
+ ));
+});
+
+document.addEventListener("keydown",function(e){
+ if(e.ctrlKey && e.shiftKey && e.key==="A"){
+  if(!isAdmin) askAdminAccess();
+  if(isAdmin) openPanel(adminPanel);
+ }
+ if(e.ctrlKey && e.shiftKey && e.key==="B"){
+  if(!isAdmin) askAdminAccess();
+  if(isAdmin) openPanel(brandPanel);
+ }
+ if(e.ctrlKey && e.shiftKey && e.key==="X"){
+  if(!isAdmin) askAdminAccess();
+  if(isAdmin){
+   deleteMode=!deleteMode;
+   render();
+  }
+ }
+});
+
+function openPanel(panel){
+ overlay.style.display="block";
+ panel.style.display="block";
+}
+
+function closePanels(){
+ overlay.style.display="none";
+ adminPanel.style.display="none";
+ brandPanel.style.display="none";
+}
+
+function applyColors(){
+ const colors={
+  '--headerColor':headerColor.value,
+  '--footerColor':footerColor.value,
+  '--brandColor':brandColor.value,
+  '--discountColor':discountColor.value
+ };
+ for(let key in colors){
+  document.documentElement.style.setProperty(key, colors[key]);
+ }
+ localStorage.setItem("pincartColors",JSON.stringify(colors));
+ closePanels();
+}
+
+function cartEffect(){
+ document.body.classList.add("cartCursor");
+ setTimeout(()=>{document.body.classList.remove("cartCursor")},1000);
+}
+
+/* Logo Upload */
+const logo=document.getElementById("logo");
+const logoUpload=document.createElement("input");
+logoUpload.type="file";
+logoUpload.accept="image/*";
+logoUpload.style.display="none";
+document.body.appendChild(logoUpload);
+
+logo.addEventListener("click",function(){
+ if(!isAdmin) askAdminAccess();
+ if(isAdmin) logoUpload.click();
+});
+
+logoUpload.addEventListener("change",function(){
+ const file=this.files[0];
+ if(file){
+  const reader=new FileReader();
+  reader.onload=function(e){
+   logo.src=e.target.result;
+   localStorage.setItem("pincartLogo",e.target.result);
+  };
+  reader.readAsDataURL(file);
+ }
+});
+</script>
+
+</body>
+</html>
