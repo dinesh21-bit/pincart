@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pincart</title>
 
+<!-- 🔥 FAVICON (Logo in Browser Tab) -->
+<link rel="icon" id="favicon" href="https://via.placeholder.com/40">
+
 <style>
 :root{
  --headerColor:#111;
@@ -53,7 +56,6 @@ header{
  max-width:100%;
 }
 
-/* SORT BUTTONS HORIZONTAL */
 .filters{
  display:flex;
  justify-content:center;
@@ -199,83 +201,58 @@ footer{
  <button onclick="addProduct()">Add</button>
 </div>
 
-<div class="panel" id="brandPanel">
- <h3>Change Colors</h3>
- <input type="color" id="headerColor">
- <input type="color" id="footerColor">
- <input type="color" id="brandColor">
- <input type="color" id="discountColor">
- <button onclick="applyColors()">Apply</button>
-</div>
+<!-- 🔥 FIREBASE SCRIPT -->
+<script type="module">
 
-<script>
-let products = JSON.parse(localStorage.getItem("pincart")) || [];
-let deleteMode = false;
-let isAdmin = false;
-const ADMIN_PASSWORD = "Dinesh@123";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const overlay = document.getElementById("overlay");
-const adminPanel = document.getElementById("adminPanel");
-const brandPanel = document.getElementById("brandPanel");
+const firebaseConfig = {
+  apiKey: "AIzaSyDG48UV13XoQ1qtw5xtpnDnSwtmi4MUw84",
+  authDomain: "pincart-245f7.firebaseapp.com",
+  projectId: "pincart-245f7",
+  storageBucket: "pincart-245f7.firebasestorage.app",
+  messagingSenderId: "812846953819",
+  appId: "1:812846953819:web:5e2eb1b090e62c2367567e"
+};
 
-const headerColor = document.getElementById("headerColor");
-const footerColor = document.getElementById("footerColor");
-const brandColor = document.getElementById("brandColor");
-const discountColor = document.getElementById("discountColor");
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-/* Load Saved Colors */
-const savedColors = JSON.parse(localStorage.getItem("pincartColors"));
-if(savedColors){
- for(let key in savedColors){
-  document.documentElement.style.setProperty(key, savedColors[key]);
- }
+let products = [];
+const productList = document.getElementById("productList");
+
+/* LOAD PRODUCTS FROM FIRESTORE */
+async function loadProducts(){
+ products=[];
+ const querySnapshot = await getDocs(collection(db,"products"));
+ querySnapshot.forEach((docSnap)=>{
+   products.push({id:docSnap.id, ...docSnap.data()});
+ });
+ render(products);
 }
 
-/* Load Saved Logo */
-let savedLogo = localStorage.getItem("pincartLogo");
-if(savedLogo){
- document.getElementById("logo").src = savedLogo;
-}
+window.addEventListener("DOMContentLoaded", loadProducts);
 
-function save(){
- localStorage.setItem("pincart",JSON.stringify(products));
-}
-
-function render(list=products){
- const container=document.getElementById("productList");
- container.innerHTML="";
- list.forEach((p,i)=>{
-  container.innerHTML+=`
+/* RENDER */
+function render(list){
+ productList.innerHTML="";
+ list.forEach((p)=>{
+  productList.innerHTML+=`
   <div class="card">
    <img src="${p.images[0]}">
    <h3>${p.title}</h3>
    <p>${p.desc}</p>
    <p class="price">₹${p.price}
    <span class="discount">-${p.discount}%</span></p>
-   <a href="${p.link}" target="_blank"
-   class="buy"
-   onclick="trackView(${i}); cartEffect()">View on Amazon</a>
-   ${deleteMode ? `<button class="deleteBtn" onclick="deleteProduct(${i})">Delete</button>` : ``}
+   <a href="${p.link}" target="_blank" class="buy">View</a>
   </div>`;
  });
 }
-render();
 
-/* Admin Access */
-function askAdminAccess(){
- let pass = prompt("Enter Admin Password:");
- if(pass === ADMIN_PASSWORD){
-   isAdmin = true;
-   alert("Admin Access Granted ✅");
- } else {
-   alert("Wrong Password ❌");
- }
-}
-
-/* Add Product */
-function addProduct(){
- if(!isAdmin){ alert("Admin Only ❌"); return; }
-
+/* ADD PRODUCT */
+window.addProduct = async function(){
  const title=document.getElementById("title").value;
  const desc=document.getElementById("desc").value;
  const price=Number(document.getElementById("price").value);
@@ -283,49 +260,31 @@ function addProduct(){
  const link=document.getElementById("link").value;
  const files=document.getElementById("images").files;
 
- if(files.length === 0){
-  alert("Upload at least one image");
-  return;
- }
-
  let images=[];
- let count=0;
-
- for(let i=0;i<files.length;i++){
-  const reader=new FileReader();
-  reader.onload=function(e){
-   images.push(e.target.result);
-   count++;
-   if(count===files.length){
-    products.push({
-     title,desc,price,discount,link,images,
-     views:0,
-     created:Date.now()
-    });
-    save();
-    render();
-    closePanels();
-   }
-  }
-  reader.readAsDataURL(files[i]);
+ for(let file of files){
+   images.push(await toBase64(file));
  }
+
+ await addDoc(collection(db,"products"),{
+   title,desc,price,discount,link,images,
+   views:0,
+   created:Date.now()
+ });
+
+ loadProducts();
 }
 
-function deleteProduct(index){
- if(confirm("Delete this product?")){
-  products.splice(index,1);
-  save();
-  render();
- }
-}
-
-function trackView(index){
- products[index].views++;
- save();
+function toBase64(file){
+ return new Promise((resolve,reject)=>{
+   const reader=new FileReader();
+   reader.readAsDataURL(file);
+   reader.onload=()=>resolve(reader.result);
+   reader.onerror=error=>reject(error);
+ });
 }
 
 /* SORTING */
-function sortProducts(type){
+window.sortProducts=function(type){
  let sorted=[...products];
 
  if(type==="low") sorted.sort((a,b)=>a.price-b.price);
@@ -333,94 +292,16 @@ function sortProducts(type){
  if(type==="popular") sorted.sort((a,b)=>b.views-a.views);
  if(type==="newest") sorted.sort((a,b)=>b.created-a.created);
  if(type==="relevance"){
-  const searchText=document.getElementById("search").value.toLowerCase();
-  sorted.sort((a,b)=>{
-   return b.title.toLowerCase().includes(searchText) -
-          a.title.toLowerCase().includes(searchText);
-  });
+  const text=document.getElementById("search").value.toLowerCase();
+  sorted.sort((a,b)=>
+   b.title.toLowerCase().includes(text) -
+   a.title.toLowerCase().includes(text)
+  );
  }
 
  render(sorted);
 }
 
-document.getElementById("search").addEventListener("input",function(){
- render(products.filter(p =>
-  p.title.toLowerCase().includes(this.value.toLowerCase())
- ));
-});
-
-document.addEventListener("keydown",function(e){
- if(e.ctrlKey && e.shiftKey && e.key==="A"){
-  if(!isAdmin) askAdminAccess();
-  if(isAdmin) openPanel(adminPanel);
- }
- if(e.ctrlKey && e.shiftKey && e.key==="B"){
-  if(!isAdmin) askAdminAccess();
-  if(isAdmin) openPanel(brandPanel);
- }
- if(e.ctrlKey && e.shiftKey && e.key==="X"){
-  if(!isAdmin) askAdminAccess();
-  if(isAdmin){
-   deleteMode=!deleteMode;
-   render();
-  }
- }
-});
-
-function openPanel(panel){
- overlay.style.display="block";
- panel.style.display="block";
-}
-
-function closePanels(){
- overlay.style.display="none";
- adminPanel.style.display="none";
- brandPanel.style.display="none";
-}
-
-function applyColors(){
- const colors={
-  '--headerColor':headerColor.value,
-  '--footerColor':footerColor.value,
-  '--brandColor':brandColor.value,
-  '--discountColor':discountColor.value
- };
- for(let key in colors){
-  document.documentElement.style.setProperty(key, colors[key]);
- }
- localStorage.setItem("pincartColors",JSON.stringify(colors));
- closePanels();
-}
-
-function cartEffect(){
- document.body.classList.add("cartCursor");
- setTimeout(()=>{document.body.classList.remove("cartCursor")},1000);
-}
-
-/* Logo Upload */
-const logo=document.getElementById("logo");
-const logoUpload=document.createElement("input");
-logoUpload.type="file";
-logoUpload.accept="image/*";
-logoUpload.style.display="none";
-document.body.appendChild(logoUpload);
-
-logo.addEventListener("click",function(){
- if(!isAdmin) askAdminAccess();
- if(isAdmin) logoUpload.click();
-});
-
-logoUpload.addEventListener("change",function(){
- const file=this.files[0];
- if(file){
-  const reader=new FileReader();
-  reader.onload=function(e){
-   logo.src=e.target.result;
-   localStorage.setItem("pincartLogo",e.target.result);
-  };
-  reader.readAsDataURL(file);
- }
-});
 </script>
 
 </body>
