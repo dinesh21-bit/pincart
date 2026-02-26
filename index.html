@@ -101,6 +101,10 @@ button{
  margin-bottom:10px;
  padding:6px;
 }
+
+#filterPanel{
+ padding:20px;
+}
 </style>
 </head>
 
@@ -117,6 +121,7 @@ button{
  </div>
 </header>
 
+<!-- ADMIN PANEL -->
 <div id="adminPanel">
 
  <div class="adminSection">
@@ -143,6 +148,17 @@ button{
 
 </div>
 
+<!-- FILTER PANEL -->
+<div id="filterPanel">
+ <h3>Filter Products</h3>
+ <input type="text" id="searchTitle" placeholder="Search by Title">
+ <input type="number" id="minPrice" placeholder="Min Price">
+ <input type="number" id="maxPrice" placeholder="Max Price">
+ <button onclick="applyFilters()">Apply Filter</button>
+ <button onclick="resetFilters()">Reset</button>
+</div>
+
+<!-- PRODUCTS -->
 <div class="products" id="productList"></div>
 
 <footer id="footer">
@@ -178,6 +194,7 @@ const headerLogo=document.getElementById("headerLogo");
 const favicon=document.getElementById("favicon");
 
 let isAdmin=false;
+let allProducts=[];
 
 /* LOGIN */
 loginBtn.onclick=()=>{
@@ -215,9 +232,23 @@ onAuthStateChanged(auth, async(user)=>{
 /* LOAD PRODUCTS */
 async function loadProducts(){
  productList.innerHTML="";
+ allProducts=[];
+
  const snap=await getDocs(collection(db,"products"));
+
  snap.forEach(docSnap=>{
   const p=docSnap.data();
+  p.id=docSnap.id;
+  allProducts.push(p);
+ });
+
+ displayProducts(allProducts);
+}
+
+function displayProducts(products){
+ productList.innerHTML="";
+
+ products.forEach(p=>{
   productList.innerHTML+=`
    <div class="card">
     <img src="${p.image}">
@@ -225,11 +256,48 @@ async function loadProducts(){
     <p>${p.desc}</p>
     <p>₹${p.price}</p>
     <a href="${p.link}" target="_blank">View</a>
-    ${isAdmin?`<button class="deleteBtn" onclick="deleteProduct('${docSnap.id}')">Delete</button>`:""}
+    ${isAdmin?`<button class="deleteBtn" onclick="deleteProduct('${p.id}')">Delete</button>`:""}
    </div>
   `;
  });
 }
+
+/* FILTERS */
+window.applyFilters=function(){
+
+ let filtered=[...allProducts];
+
+ const titleFilter=document.getElementById("searchTitle").value.toLowerCase();
+ const minPrice=document.getElementById("minPrice").value;
+ const maxPrice=document.getElementById("maxPrice").value;
+
+ if(titleFilter){
+  filtered=filtered.filter(p =>
+   p.title.toLowerCase().includes(titleFilter)
+  );
+ }
+
+ if(minPrice){
+  filtered=filtered.filter(p =>
+   p.price >= parseFloat(minPrice)
+  );
+ }
+
+ if(maxPrice){
+  filtered=filtered.filter(p =>
+   p.price <= parseFloat(maxPrice)
+  );
+ }
+
+ displayProducts(filtered);
+};
+
+window.resetFilters=function(){
+ document.getElementById("searchTitle").value="";
+ document.getElementById("minPrice").value="";
+ document.getElementById("maxPrice").value="";
+ displayProducts(allProducts);
+};
 
 /* ADD PRODUCT */
 window.addProduct=async()=>{
