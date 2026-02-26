@@ -5,79 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pincart</title>
 
-<link rel="icon" id="favicon" href="https://via.placeholder.com/40">
-
 <style>
-:root{
- --headerColor:#111;
- --footerColor:#111;
- --brandColor:#ffffff;
- --discountColor:#e60023;
-}
-
 body{
  margin:0;
- font-family:Arial, sans-serif;
+ font-family:Arial;
  background:#f4f6f9;
 }
 
 header{
- background:var(--headerColor);
+ background:#111;
  color:white;
  padding:15px;
  display:flex;
- align-items:center;
  justify-content:space-between;
- flex-wrap:wrap;
-}
-
-.brand{
- display:flex;
  align-items:center;
- cursor:pointer;
 }
 
-.brand img{
- width:40px;
- height:40px;
- margin-right:10px;
- border-radius:50%;
-}
-
-.brand h1{
- margin:0;
- color:var(--brandColor);
-}
-
-#search{
- padding:8px;
- width:200px;
-}
-
-.auth{
- display:flex;
- gap:8px;
-}
-
-.auth input{
- padding:6px;
-}
-
-.filters{
- display:flex;
- justify-content:center;
- flex-wrap:wrap;
- gap:10px;
- padding:10px;
-}
-
-.filters button{
- padding:8px 12px;
+button{
+ padding:6px 10px;
  border:none;
- background:#ddd;
  border-radius:5px;
  cursor:pointer;
 }
+
+#loginBtn{ background:#28a745; color:white; }
+#logoutBtn{ background:red; color:white; display:none; }
 
 .products{
  display:grid;
@@ -100,64 +52,23 @@ header{
  border-radius:8px;
 }
 
-.price{
- font-weight:bold;
-}
-
-.discount{
- color:var(--discountColor);
- font-weight:bold;
- margin-left:8px;
-}
-
-.buy{
- display:inline-block;
- background:#ff9900;
- color:white;
- padding:8px 12px;
- text-decoration:none;
- border-radius:5px;
- margin-top:8px;
-}
-
 .deleteBtn{
  background:red;
  color:white;
- border:none;
- padding:6px 10px;
  margin-top:8px;
- border-radius:5px;
- cursor:pointer;
 }
 
-.panel{
+#adminPanel{
  display:none;
- position:fixed;
- top:50%;
- left:50%;
- transform:translate(-50%,-50%);
+ padding:20px;
  background:white;
- padding:20px;
- width:300px;
- z-index:1000;
- box-shadow:0 0 10px black;
+ margin:20px;
+ border-radius:10px;
 }
-
-.overlay{
- display:none;
- position:fixed;
+#adminPanel input, #adminPanel textarea{
  width:100%;
- height:100%;
- background:rgba(0,0,0,0.5);
- top:0;
- left:0;
-}
-
-footer{
- background:var(--footerColor);
- color:white;
- text-align:center;
- padding:20px;
+ margin-bottom:10px;
+ padding:6px;
 }
 </style>
 </head>
@@ -165,69 +76,32 @@ footer{
 <body>
 
 <header>
- <div class="brand">
-  <img id="logo" src="https://via.placeholder.com/40">
-  <h1>Pincart</h1>
+ <h2>Pincart</h2>
+ <div>
+  <button id="loginBtn">Login</button>
+  <button id="logoutBtn">Logout</button>
  </div>
-
- <input type="text" id="search" placeholder="Search products...">
-
- <div class="auth" id="authSection">
-   <input type="email" id="email" placeholder="Email">
-   <input type="password" id="password" placeholder="Password">
-   <button onclick="login()">Login</button>
-   <button onclick="register()">Register</button>
- </div>
-
- <button id="logoutBtn" onclick="logout()" style="display:none;">Logout</button>
 </header>
 
-<div class="filters">
- <button onclick="sortProducts('low')">Low → High</button>
- <button onclick="sortProducts('high')">High → Low</button>
- <button onclick="sortProducts('popular')">Popularity</button>
- <button onclick="sortProducts('newest')">Newest</button>
+<div id="adminPanel">
+ <h3>Add Product</h3>
+ <input type="text" id="title" placeholder="Title">
+ <textarea id="desc" placeholder="Description"></textarea>
+ <input type="number" id="price" placeholder="Price">
+ <input type="text" id="link" placeholder="Amazon Link">
+ <input type="file" id="image">
+ <button onclick="addProduct()">Add</button>
 </div>
 
 <div class="products" id="productList"></div>
 
-<footer>
- © 2026 Pincart | Affiliate Store
-</footer>
-
-<div class="overlay" id="overlay"></div>
-
-<div class="panel" id="adminPanel">
- <h3>Add Product</h3>
- <input type="text" id="title" placeholder="Title"><br>
- <input type="text" id="desc" placeholder="Description"><br>
- <input type="number" id="price" placeholder="Price"><br>
- <input type="number" id="discount" placeholder="Discount %"><br>
- <input type="text" id="link" placeholder="Amazon Link"><br>
- <input type="file" id="images" multiple><br>
- <button onclick="addProduct()">Add</button>
-</div>
-
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  getDocs, 
-  deleteDoc, 
-  doc,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDG48UV13XoQ1qtw5xtpnDnSwtmi4MUw84",
@@ -242,134 +116,97 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let products=[];
+const loginBtn=document.getElementById("loginBtn");
+const logoutBtn=document.getElementById("logoutBtn");
+const adminPanel=document.getElementById("adminPanel");
+const productList=document.getElementById("productList");
+
 let isAdmin=false;
 
-const productList=document.getElementById("productList");
-const adminPanel=document.getElementById("adminPanel");
-const overlay=document.getElementById("overlay");
-
-/* AUTH */
-
-window.register=async function(){
- const email=emailInput().value;
- const password=passwordInput().value;
- await createUserWithEmailAndPassword(auth,email,password);
- alert("Registered");
+/* LOGIN */
+loginBtn.onclick=()=>{
+ const email=prompt("Enter Email:");
+ const password=prompt("Enter Password:");
+ signInWithEmailAndPassword(auth,email,password)
+  .catch(err=>alert(err.message));
 };
 
-window.login=async function(){
- const email=emailInput().value;
- const password=passwordInput().value;
- await signInWithEmailAndPassword(auth,email,password);
-};
+/* LOGOUT */
+logoutBtn.onclick=()=>signOut(auth);
 
-window.logout=async function(){
- await signOut(auth);
-};
-
-function emailInput(){ return document.getElementById("email"); }
-function passwordInput(){ return document.getElementById("password"); }
-
+/* AUTH STATE */
 onAuthStateChanged(auth, async(user)=>{
  if(user){
-   document.getElementById("authSection").style.display="none";
-   document.getElementById("logoutBtn").style.display="block";
+  loginBtn.style.display="none";
+  logoutBtn.style.display="inline-block";
 
-   const docSnap=await getDoc(doc(db,"users",user.uid));
-   if(docSnap.exists() && docSnap.data().role==="admin"){
-     isAdmin=true;
-     document.addEventListener("keydown",(e)=>{
-       if(e.ctrlKey && e.shiftKey && e.key==="A"){
-         overlay.style.display="block";
-         adminPanel.style.display="block";
-       }
-     });
-   }
+  const userDoc=await getDoc(doc(db,"users",user.uid));
+  if(userDoc.exists() && userDoc.data().role==="admin"){
+   isAdmin=true;
+   adminPanel.style.display="block";
+  }
  }else{
-   isAdmin=false;
-   document.getElementById("authSection").style.display="flex";
-   document.getElementById("logoutBtn").style.display="none";
+  loginBtn.style.display="inline-block";
+  logoutBtn.style.display="none";
+  adminPanel.style.display="none";
+  isAdmin=false;
  }
+
+ loadProducts();
 });
 
-/* PRODUCTS */
-
+/* LOAD PRODUCTS */
 async function loadProducts(){
- products=[];
+ productList.innerHTML="";
  const snap=await getDocs(collection(db,"products"));
  snap.forEach(docSnap=>{
-   products.push({id:docSnap.id,...docSnap.data()});
- });
- render(products);
-}
-
-window.addEventListener("DOMContentLoaded",loadProducts);
-
-function render(list){
- productList.innerHTML="";
- list.forEach(p=>{
+  const p=docSnap.data();
   productList.innerHTML+=`
   <div class="card">
-   <img src="${p.images[0]}">
+   <img src="${p.image}">
    <h3>${p.title}</h3>
    <p>${p.desc}</p>
-   <p class="price">₹${p.price}
-   <span class="discount">-${p.discount}%</span></p>
-   <a href="${p.link}" target="_blank" class="buy">View</a>
-   ${isAdmin?`<button class="deleteBtn" onclick="deleteProduct('${p.id}')">Delete</button>`:""}
+   <p>₹${p.price}</p>
+   <a href="${p.link}" target="_blank">View</a>
+   ${isAdmin ? `<button class="deleteBtn" onclick="deleteProduct('${docSnap.id}')">Delete</button>` : ``}
   </div>`;
  });
 }
 
-window.addProduct=async function(){
- if(!isAdmin){ alert("Admin only"); return; }
+/* ADD PRODUCT */
+window.addProduct=async()=>{
+ const title=document.getElementById("title").value;
+ const desc=document.getElementById("desc").value;
+ const price=document.getElementById("price").value;
+ const link=document.getElementById("link").value;
+ const file=document.getElementById("image").files[0];
 
- const files=document.getElementById("images").files;
- let images=[];
- for(let file of files){
-   images.push(await toBase64(file));
- }
+ const base64=await toBase64(file);
 
  await addDoc(collection(db,"products"),{
-   title:title.value,
-   desc:desc.value,
-   price:Number(price.value),
-   discount:Number(discount.value),
-   link:link.value,
-   images,
-   views:0,
-   created:Date.now()
+  title,desc,price,link,image:base64
  });
 
- overlay.style.display="none";
- adminPanel.style.display="none";
  loadProducts();
 };
 
-window.deleteProduct=async function(id){
+/* DELETE */
+window.deleteProduct=async(id)=>{
  await deleteDoc(doc(db,"products",id));
  loadProducts();
 };
 
 function toBase64(file){
- return new Promise((res,rej)=>{
-   const reader=new FileReader();
-   reader.readAsDataURL(file);
-   reader.onload=()=>res(reader.result);
-   reader.onerror=err=>rej(err);
+ return new Promise((resolve,reject)=>{
+  const reader=new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload=()=>resolve(reader.result);
+  reader.onerror=error=>reject(error);
  });
 }
 
-window.sortProducts=function(type){
- let sorted=[...products];
- if(type==="low") sorted.sort((a,b)=>a.price-b.price);
- if(type==="high") sorted.sort((a,b)=>b.price-a.price);
- if(type==="popular") sorted.sort((a,b)=>b.views-a.views);
- if(type==="newest") sorted.sort((a,b)=>b.created-a.created);
- render(sorted);
-};
-
 </script>
+
 </body>
 </html>
+
