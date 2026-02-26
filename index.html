@@ -1,9 +1,12 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pincart</title>
+
+<!-- Favicon -->
+<link id="favicon" rel="icon" href="logo.png" type="image/png">
 
 <style>
 body{
@@ -19,6 +22,28 @@ header{
  display:flex;
  justify-content:space-between;
  align-items:center;
+}
+
+header h1{
+ display:flex;
+ align-items:center;
+ font-size:24px;
+}
+
+header h1 img{
+ width:40px;
+ height:40px;
+ object-fit:cover;
+ margin-right:10px;
+ border-radius:5px;
+}
+
+footer{
+ background:#111;
+ color:white;
+ padding:15px;
+ text-align:center;
+ margin-top:20px;
 }
 
 button{
@@ -65,42 +90,110 @@ button{
  margin:20px;
  border-radius:10px;
 }
+
+/* Sections in admin panel */
+.adminSection{
+ border:1px solid #ccc;
+ padding:15px;
+ margin-bottom:15px;
+ border-radius:8px;
+}
+
 #adminPanel input, #adminPanel textarea{
  width:100%;
  margin-bottom:10px;
  padding:6px;
+}
+
+.adminSection h4{
+ margin-top:0;
 }
 </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
 <header>
- <h2>Pincart</h2>
+ <h1>
+  <img id="headerLogo" src="logo.png" alt="Logo">
+  Pincart
+ </h1>
  <div>
   <button id="loginBtn">Login</button>
   <button id="logoutBtn">Logout</button>
  </div>
 </header>
 
+<!-- ADMIN PANEL -->
 <div id="adminPanel">
- <h3>Add Product</h3>
- <input type="text" id="title" placeholder="Title">
- <textarea id="desc" placeholder="Description"></textarea>
- <input type="number" id="price" placeholder="Price">
- <input type="text" id="link" placeholder="Amazon Link">
- <input type="file" id="image">
- <button onclick="addProduct()">Add</button>
+
+ <!-- ADD PRODUCT SECTION -->
+ <div class="adminSection">
+   <h4>Add Product</h4>
+   <input type="text" id="title" placeholder="Title">
+   <textarea id="desc" placeholder="Description"></textarea>
+   <input type="number" id="price" placeholder="Price">
+   <input type="text" id="link" placeholder="Amazon Link">
+   <input type="file" id="image">
+   <button onclick="addProduct()">Add Product</button>
+ </div>
+
+ <!-- PAGE BACKGROUND IMAGE SECTION -->
+<div class="adminSection">
+  <h4>Change Page Background</h4>
+  <input type="file" id="bgInput" accept="image/*">
+  <button onclick="changeBackground()">Update Background</button>
+</div> 
+ <!-- LOGO CHANGE SECTION -->
+ <div class="adminSection">
+   <h4>Change Logo</h4>
+   <input type="file" id="logoInput" accept="image/*">
+   <button onclick="changeLogo()">Update Logo</button>
+ </div>
+
+ <!-- COLOR CUSTOMIZATION SECTION -->
+ <div class="adminSection">
+   <h4>Customize Colors</h4>
+   <label>Header Background:</label>
+   <input type="color" id="headerBg" value="#111"><br>
+   <label>Header Text:</label>
+   <input type="color" id="headerText" value="#ffffff"><br>
+   <label>Footer Background:</label>
+   <input type="color" id="footerBg" value="#111"><br>
+   <label>Footer Text:</label>
+   <input type="color" id="footerText" value="#ffffff"><br>
+   <label>Body Background:</label>
+   <input type="color" id="bodyBg" value="#f4f6f9"><br>
+   <button onclick="applyColors()">Apply Colors</button>
+ </div>
+
 </div>
 
+<!-- FILTER PANEL -->
+<div id="filterPanel">
+ <h3>Filter Products</h3>
+ <input type="text" id="searchTitle" placeholder="Search by Title">
+ <input type="number" id="minPrice" placeholder="Min Price">
+ <input type="number" id="maxPrice" placeholder="Max Price">
+ <button onclick="applyFilters()">Apply Filter</button>
+ <button onclick="resetFilters()">Reset Filter</button>
+</div>
+
+<!-- PRODUCT LIST -->
 <div class="products" id="productList"></div>
+
+<!-- FOOTER -->
+<footer id="footer">
+ &copy; 2026 Pincart | All rights reserved
+</footer>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc }
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc, setDoc }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -120,8 +213,12 @@ const loginBtn=document.getElementById("loginBtn");
 const logoutBtn=document.getElementById("logoutBtn");
 const adminPanel=document.getElementById("adminPanel");
 const productList=document.getElementById("productList");
+const headerLogo=document.getElementById("headerLogo");
+const favicon=document.getElementById("favicon");
+const footer=document.getElementById("footer");
 
 let isAdmin=false;
+let allProducts=[];
 
 /* LOGIN */
 loginBtn.onclick=()=>{
@@ -130,6 +227,37 @@ loginBtn.onclick=()=>{
  signInWithEmailAndPassword(auth,email,password)
   .catch(err=>alert(err.message));
 };
+
+ /* CHANGE PAGE BACKGROUND (Admin + Firestore) */
+async function changeBackground(){
+  if(!isAdmin) return;
+  const file=document.getElementById("bgInput").files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=async()=>{
+    document.body.style.backgroundImage=`url('${reader.result}')`;
+    document.body.style.backgroundSize='cover';
+    document.body.style.backgroundRepeat='no-repeat';
+    document.body.style.backgroundPosition='center';
+    await setDoc(doc(db,"settings","background"),{src:reader.result});
+  };
+  reader.readAsDataURL(file);
+}
+
+/* LOAD SAVED BACKGROUND IMAGE */
+async function loadSettings(){
+  // Existing logo/colors code...
+
+  // Background Image
+  const bgDoc=await getDoc(doc(db,"settings","background"));
+  if(bgDoc.exists()){
+    const src=bgDoc.data().src;
+    document.body.style.backgroundImage=`url('${src}')`;
+    document.body.style.backgroundSize='cover';
+    document.body.style.backgroundRepeat='no-repeat';
+    document.body.style.backgroundPosition='center';
+  }
+}
 
 /* LOGOUT */
 logoutBtn.onclick=()=>signOut(auth);
@@ -152,6 +280,9 @@ onAuthStateChanged(auth, async(user)=>{
   isAdmin=false;
  }
 
+ // Load saved settings (logo/colors)
+ loadSettings();
+
  loadProducts();
 });
 
@@ -159,8 +290,18 @@ onAuthStateChanged(auth, async(user)=>{
 async function loadProducts(){
  productList.innerHTML="";
  const snap=await getDocs(collection(db,"products"));
+ allProducts=[];
  snap.forEach(docSnap=>{
   const p=docSnap.data();
+  p.id=docSnap.id;
+  allProducts.push(p);
+ });
+ displayProducts(allProducts);
+}
+
+function displayProducts(products){
+ productList.innerHTML="";
+ products.forEach(p=>{
   productList.innerHTML+=`
   <div class="card">
    <img src="${p.image}">
@@ -168,7 +309,7 @@ async function loadProducts(){
    <p>${p.desc}</p>
    <p>₹${p.price}</p>
    <a href="${p.link}" target="_blank">View</a>
-   ${isAdmin ? `<button class="deleteBtn" onclick="deleteProduct('${docSnap.id}')">Delete</button>` : ``}
+   ${isAdmin ? `<button class="deleteBtn" onclick="deleteProduct('${p.id}')">Delete</button>` : ``}
   </div>`;
  });
 }
@@ -196,6 +337,28 @@ window.deleteProduct=async(id)=>{
  loadProducts();
 };
 
+/* FILTERS */
+window.applyFilters=()=>{
+ let filtered=[...allProducts];
+ const titleFilter=document.getElementById("searchTitle")?.value.toLowerCase();
+ const minPrice=document.getElementById("minPrice")?.value;
+ const maxPrice=document.getElementById("maxPrice")?.value;
+
+ if(titleFilter) filtered=filtered.filter(p=>p.title.toLowerCase().includes(titleFilter));
+ if(minPrice) filtered=filtered.filter(p=>p.price>=parseFloat(minPrice));
+ if(maxPrice) filtered=filtered.filter(p=>p.price<=parseFloat(maxPrice));
+
+ displayProducts(filtered);
+};
+
+window.resetFilters=()=>{
+ document.getElementById("searchTitle").value="";
+ document.getElementById("minPrice").value="";
+ document.getElementById("maxPrice").value="";
+ displayProducts(allProducts);
+};
+
+/* TO BASE64 IMAGE */
 function toBase64(file){
  return new Promise((resolve,reject)=>{
   const reader=new FileReader();
@@ -205,8 +368,69 @@ function toBase64(file){
  });
 }
 
+/* CHANGE LOGO (Admin + Firestore) */
+async function changeLogo(){
+ if(!isAdmin) return;
+ const file=document.getElementById("logoInput").files[0];
+ if(!file) return;
+ const reader=new FileReader();
+ reader.onload=async()=>{
+   headerLogo.src=reader.result;
+   favicon.href=reader.result;
+   await setDoc(doc(db,"settings","logo"),{src:reader.result});
+ };
+ reader.readAsDataURL(file);
+}
+
+/* APPLY COLOR CUSTOMIZATION + Firestore */
+async function applyColors(){
+ if(!isAdmin) return;
+ const colors={
+   headerBg:document.getElementById("headerBg").value,
+   headerText:document.getElementById("headerText").value,
+   footerBg:document.getElementById("footerBg").value,
+   footerText:document.getElementById("footerText").value,
+   bodyBg:document.getElementById("bodyBg").value
+ };
+ document.querySelector("header").style.background=colors.headerBg;
+ document.querySelector("header").style.color=colors.headerText;
+ footer.style.background=colors.footerBg;
+ footer.style.color=colors.footerText;
+ document.body.style.background=colors.bodyBg;
+
+ await setDoc(doc(db,"settings","colors"),colors);
+}
+
+/* LOAD SAVED SETTINGS */
+async function loadSettings(){
+ // Logo
+ const logoDoc=await getDoc(doc(db,"settings","logo"));
+ if(logoDoc.exists()){
+   const src=logoDoc.data().src;
+   headerLogo.src=src;
+   favicon.href=src;
+ }
+
+ // Colors
+ const colorDoc=await getDoc(doc(db,"settings","colors"));
+ if(colorDoc.exists()){
+   const c=colorDoc.data();
+   document.querySelector("header").style.background=c.headerBg;
+   document.querySelector("header").style.color=c.headerText;
+   footer.style.background=c.footerBg;
+   footer.style.color=c.footerText;
+   document.body.style.background=c.bodyBg;
+
+   // Set inputs in admin panel
+   document.getElementById("headerBg").value=c.headerBg;
+   document.getElementById("headerText").value=c.headerText;
+   document.getElementById("footerBg").value=c.footerBg;
+   document.getElementById("footerText").value=c.footerText;
+   document.getElementById("bodyBg").value=c.bodyBg;
+ }
+}
+
 </script>
 
 </body>
 </html>
-
