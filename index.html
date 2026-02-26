@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pincart</title>
 
-<!-- 🔥 FAVICON (Logo in Browser Tab) -->
 <link rel="icon" id="favicon" href="https://via.placeholder.com/40">
 
 <style>
@@ -53,7 +52,15 @@ header{
 #search{
  padding:8px;
  width:200px;
- max-width:100%;
+}
+
+.auth{
+ display:flex;
+ gap:8px;
+}
+
+.auth input{
+ padding:6px;
 }
 
 .filters{
@@ -66,10 +73,10 @@ header{
 
 .filters button{
  padding:8px 12px;
- cursor:pointer;
  border:none;
  background:#ddd;
  border-radius:5px;
+ cursor:pointer;
 }
 
 .products{
@@ -117,16 +124,10 @@ header{
  background:red;
  color:white;
  border:none;
+ padding:6px 10px;
  margin-top:8px;
  border-radius:5px;
- padding:8px 12px;
-}
-
-footer{
- background:var(--footerColor);
- color:white;
- text-align:center;
- padding:20px;
+ cursor:pointer;
 }
 
 .panel{
@@ -142,12 +143,6 @@ footer{
  box-shadow:0 0 10px black;
 }
 
-.panel input, .panel textarea{
- width:100%;
- margin-bottom:10px;
- padding:6px;
-}
-
 .overlay{
  display:none;
  position:fixed;
@@ -158,8 +153,11 @@ footer{
  left:0;
 }
 
-.cartCursor{
- cursor:url('https://cdn-icons-png.flaticon.com/32/263/263142.png'), auto;
+footer{
+ background:var(--footerColor);
+ color:white;
+ text-align:center;
+ padding:20px;
 }
 </style>
 </head>
@@ -171,7 +169,17 @@ footer{
   <img id="logo" src="https://via.placeholder.com/40">
   <h1>Pincart</h1>
  </div>
+
  <input type="text" id="search" placeholder="Search products...">
+
+ <div class="auth" id="authSection">
+   <input type="email" id="email" placeholder="Email">
+   <input type="password" id="password" placeholder="Password">
+   <button onclick="login()">Login</button>
+   <button onclick="register()">Register</button>
+ </div>
+
+ <button id="logoutBtn" onclick="logout()" style="display:none;">Logout</button>
 </header>
 
 <div class="filters">
@@ -179,7 +187,6 @@ footer{
  <button onclick="sortProducts('high')">High → Low</button>
  <button onclick="sortProducts('popular')">Popularity</button>
  <button onclick="sortProducts('newest')">Newest</button>
- <button onclick="sortProducts('relevance')">Relevance</button>
 </div>
 
 <div class="products" id="productList"></div>
@@ -192,21 +199,35 @@ footer{
 
 <div class="panel" id="adminPanel">
  <h3>Add Product</h3>
- <input type="text" id="title" placeholder="Title">
- <textarea id="desc" placeholder="Description"></textarea>
- <input type="number" id="price" placeholder="Original Price">
- <input type="number" id="discount" placeholder="Discount %">
- <input type="text" id="link" placeholder="Amazon Link">
- <input type="file" id="images" multiple>
+ <input type="text" id="title" placeholder="Title"><br>
+ <input type="text" id="desc" placeholder="Description"><br>
+ <input type="number" id="price" placeholder="Price"><br>
+ <input type="number" id="discount" placeholder="Discount %"><br>
+ <input type="text" id="link" placeholder="Amazon Link"><br>
+ <input type="file" id="images" multiple><br>
  <button onclick="addProduct()">Add</button>
 </div>
 
-<!-- 🔥 FIREBASE SCRIPT -->
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } 
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  getDocs, 
+  deleteDoc, 
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDG48UV13XoQ1qtw5xtpnDnSwtmi4MUw84",
@@ -218,27 +239,76 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 const db = getFirestore(app);
 
-let products = [];
-const productList = document.getElementById("productList");
+let products=[];
+let isAdmin=false;
 
-/* LOAD PRODUCTS FROM FIRESTORE */
+const productList=document.getElementById("productList");
+const adminPanel=document.getElementById("adminPanel");
+const overlay=document.getElementById("overlay");
+
+/* AUTH */
+
+window.register=async function(){
+ const email=emailInput().value;
+ const password=passwordInput().value;
+ await createUserWithEmailAndPassword(auth,email,password);
+ alert("Registered");
+};
+
+window.login=async function(){
+ const email=emailInput().value;
+ const password=passwordInput().value;
+ await signInWithEmailAndPassword(auth,email,password);
+};
+
+window.logout=async function(){
+ await signOut(auth);
+};
+
+function emailInput(){ return document.getElementById("email"); }
+function passwordInput(){ return document.getElementById("password"); }
+
+onAuthStateChanged(auth, async(user)=>{
+ if(user){
+   document.getElementById("authSection").style.display="none";
+   document.getElementById("logoutBtn").style.display="block";
+
+   const docSnap=await getDoc(doc(db,"users",user.uid));
+   if(docSnap.exists() && docSnap.data().role==="admin"){
+     isAdmin=true;
+     document.addEventListener("keydown",(e)=>{
+       if(e.ctrlKey && e.shiftKey && e.key==="A"){
+         overlay.style.display="block";
+         adminPanel.style.display="block";
+       }
+     });
+   }
+ }else{
+   isAdmin=false;
+   document.getElementById("authSection").style.display="flex";
+   document.getElementById("logoutBtn").style.display="none";
+ }
+});
+
+/* PRODUCTS */
+
 async function loadProducts(){
  products=[];
- const querySnapshot = await getDocs(collection(db,"products"));
- querySnapshot.forEach((docSnap)=>{
-   products.push({id:docSnap.id, ...docSnap.data()});
+ const snap=await getDocs(collection(db,"products"));
+ snap.forEach(docSnap=>{
+   products.push({id:docSnap.id,...docSnap.data()});
  });
  render(products);
 }
 
-window.addEventListener("DOMContentLoaded", loadProducts);
+window.addEventListener("DOMContentLoaded",loadProducts);
 
-/* RENDER */
 function render(list){
  productList.innerHTML="";
- list.forEach((p)=>{
+ list.forEach(p=>{
   productList.innerHTML+=`
   <div class="card">
    <img src="${p.images[0]}">
@@ -247,62 +317,59 @@ function render(list){
    <p class="price">₹${p.price}
    <span class="discount">-${p.discount}%</span></p>
    <a href="${p.link}" target="_blank" class="buy">View</a>
+   ${isAdmin?`<button class="deleteBtn" onclick="deleteProduct('${p.id}')">Delete</button>`:""}
   </div>`;
  });
 }
 
-/* ADD PRODUCT */
-window.addProduct = async function(){
- const title=document.getElementById("title").value;
- const desc=document.getElementById("desc").value;
- const price=Number(document.getElementById("price").value);
- const discount=Number(document.getElementById("discount").value);
- const link=document.getElementById("link").value;
- const files=document.getElementById("images").files;
+window.addProduct=async function(){
+ if(!isAdmin){ alert("Admin only"); return; }
 
+ const files=document.getElementById("images").files;
  let images=[];
  for(let file of files){
    images.push(await toBase64(file));
  }
 
  await addDoc(collection(db,"products"),{
-   title,desc,price,discount,link,images,
+   title:title.value,
+   desc:desc.value,
+   price:Number(price.value),
+   discount:Number(discount.value),
+   link:link.value,
+   images,
    views:0,
    created:Date.now()
  });
 
+ overlay.style.display="none";
+ adminPanel.style.display="none";
  loadProducts();
-}
+};
+
+window.deleteProduct=async function(id){
+ await deleteDoc(doc(db,"products",id));
+ loadProducts();
+};
 
 function toBase64(file){
- return new Promise((resolve,reject)=>{
+ return new Promise((res,rej)=>{
    const reader=new FileReader();
    reader.readAsDataURL(file);
-   reader.onload=()=>resolve(reader.result);
-   reader.onerror=error=>reject(error);
+   reader.onload=()=>res(reader.result);
+   reader.onerror=err=>rej(err);
  });
 }
 
-/* SORTING */
 window.sortProducts=function(type){
  let sorted=[...products];
-
  if(type==="low") sorted.sort((a,b)=>a.price-b.price);
  if(type==="high") sorted.sort((a,b)=>b.price-a.price);
  if(type==="popular") sorted.sort((a,b)=>b.views-a.views);
  if(type==="newest") sorted.sort((a,b)=>b.created-a.created);
- if(type==="relevance"){
-  const text=document.getElementById("search").value.toLowerCase();
-  sorted.sort((a,b)=>
-   b.title.toLowerCase().includes(text) -
-   a.title.toLowerCase().includes(text)
-  );
- }
-
  render(sorted);
-}
+};
 
 </script>
-
 </body>
 </html>
