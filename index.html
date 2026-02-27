@@ -8,111 +8,180 @@
 <link id="favicon" rel="icon" href="logo.png">
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins;}
+
 body{
- margin:0;
- font-family:Arial;
- background:#f4f6f9;
+ background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+ color:white;
+ min-height:100vh;
 }
 
+/* HEADER */
 header{
- background:#111;
- color:white;
- padding:15px;
+ background:rgba(255,255,255,0.08);
+ backdrop-filter:blur(15px);
+ padding:15px 40px;
  display:flex;
  justify-content:space-between;
  align-items:center;
+ position:sticky;
+ top:0;
+ z-index:100;
 }
 
 header h1{
  display:flex;
  align-items:center;
+ font-size:22px;
 }
 
 header img{
  width:40px;
  height:40px;
  margin-right:10px;
- border-radius:6px;
+ border-radius:8px;
 }
 
 nav a{
  color:white;
- margin-right:15px;
- cursor:pointer;
+ margin:0 15px;
  text-decoration:none;
+ font-weight:500;
+ transition:0.3s;
 }
 
-footer{
- background:#111;
- color:white;
- padding:15px;
- text-align:center;
- margin-top:20px;
+nav a:hover{
+ color:#00f2fe;
 }
 
 button{
- padding:6px 10px;
+ padding:8px 16px;
  border:none;
- border-radius:5px;
+ border-radius:20px;
  cursor:pointer;
+ font-weight:600;
+ transition:0.3s;
 }
 
-#loginBtn{background:#28a745;color:white;}
-#logoutBtn{background:red;color:white;display:none;}
+#loginBtn{
+ background:#00f2fe;
+ color:black;
+}
 
-.page{display:none;}
+#logoutBtn{
+ background:#ff4b2b;
+ color:white;
+ display:none;
+}
+
+button:hover{
+ transform:scale(1.05);
+}
+
+/* PAGES */
+.page{display:none;padding:40px;}
 .active{display:block;}
 
+/* PRODUCTS GRID */
 .products{
  display:grid;
- grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
- gap:20px;
- padding:20px;
+ grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+ gap:30px;
+ margin-top:20px;
 }
 
+/* CARD */
 .card{
- background:white;
- padding:15px;
- border-radius:10px;
- box-shadow:0 4px 10px rgba(0,0,0,0.1);
+ background:rgba(255,255,255,0.08);
+ backdrop-filter:blur(20px);
+ padding:20px;
+ border-radius:20px;
+ transition:0.3s;
+ box-shadow:0 10px 30px rgba(0,0,0,0.3);
+}
+
+.card:hover{
+ transform:translateY(-8px);
 }
 
 .card img{
  width:100%;
  height:200px;
  object-fit:cover;
- border-radius:8px;
+ border-radius:15px;
+ margin-bottom:15px;
+}
+
+.card h3{
+ margin-bottom:8px;
+}
+
+.card p{
+ opacity:0.85;
+ margin-bottom:8px;
+}
+
+.card a{
+ color:#00f2fe;
+ text-decoration:none;
+ font-weight:600;
 }
 
 .deleteBtn{
- background:red;
+ background:#ff4b2b;
  color:white;
- margin-top:8px;
+ margin-top:10px;
 }
 
+/* ADMIN PANEL */
 #adminPanel{
  display:none;
- padding:20px;
- margin:20px;
- background:white;
- border-radius:10px;
+ margin:40px;
+ padding:30px;
+ background:rgba(255,255,255,0.08);
+ backdrop-filter:blur(20px);
+ border-radius:20px;
 }
 
 .adminSection{
- border:1px solid #ccc;
- padding:15px;
- margin-bottom:15px;
- border-radius:8px;
+ margin-bottom:30px;
 }
 
 .adminSection input,
 .adminSection textarea,
 .adminSection select{
  width:100%;
- margin-bottom:10px;
- padding:6px;
+ padding:10px;
+ margin-top:10px;
+ border:none;
+ border-radius:10px;
+ outline:none;
 }
 
+.adminSection button{
+ margin-top:10px;
+ background:#00f2fe;
+ color:black;
+}
+
+/* CATEGORY LIST */
+#categoryList p{
+ background:rgba(255,255,255,0.08);
+ padding:10px 15px;
+ border-radius:15px;
+ display:inline-block;
+ margin:5px;
+}
+
+/* FOOTER */
+footer{
+ text-align:center;
+ padding:20px;
+ margin-top:40px;
+ background:rgba(0,0,0,0.4);
+}
 </style>
 </head>
 
@@ -136,36 +205,38 @@ button{
  </div>
 </header>
 
-<!-- HOME PAGE -->
+<!-- HOME -->
 <div id="homePage" class="page active">
+ <h2>🔥 Trending Products</h2>
  <div class="products" id="productList"></div>
 </div>
 
-<!-- CATEGORY PAGE -->
+<!-- CATEGORIES -->
 <div id="categoryPage" class="page">
- <h2 style="padding:20px;">Categories</h2>
- <div id="categoryList" style="padding:20px;"></div>
+ <h2>📂 Categories</h2>
+ <div id="categoryList"></div>
 </div>
 
-<!-- ABOUT PAGE -->
-<div id="aboutPage" class="page" style="padding:20px;">
+<!-- ABOUT -->
+<div id="aboutPage" class="page">
  <h2>About Pincart</h2>
- <p><b>About:</b> Pincart is a multi-category affiliate marketing platform posting trending products.</p>
- <p><b>Vision:</b> To become India's trusted product discovery brand.</p>
- <p><b>Mission:</b> Deliver best trending deals daily.</p>
+ <p><b>Pincart</b> is a premium multi-category affiliate marketing platform showcasing trending products daily.</p>
+ <br>
+ <p><b>Vision:</b> Build India's trusted deal discovery platform.</p>
+ <p><b>Mission:</b> Provide curated trending products with best affiliate deals.</p>
 </div>
 
-<!-- ADMIN PANEL -->
+<!-- ADMIN -->
 <div id="adminPanel">
 
  <div class="adminSection">
-  <h4>Add Category</h4>
+  <h3>Add Category</h3>
   <input type="text" id="categoryName" placeholder="Category Name">
   <button onclick="addCategory()">Add Category</button>
  </div>
 
  <div class="adminSection">
-  <h4>Add Product</h4>
+  <h3>Add Product</h3>
   <input type="text" id="title" placeholder="Title">
   <textarea id="desc" placeholder="Description"></textarea>
   <input type="number" id="price" placeholder="Price">
@@ -178,7 +249,7 @@ button{
 </div>
 
 <footer>
- © 2026 Pincart
+ © 2026 Pincart — Premium Affiliate Platform
 </footer>
 
 <script type="module">
@@ -221,18 +292,18 @@ document.getElementById("logoutBtn").onclick=()=>signOut(auth);
 
 onAuthStateChanged(auth, async(user)=>{
  if(user){
-  document.getElementById("loginBtn").style.display="none";
-  document.getElementById("logoutBtn").style.display="inline-block";
+  loginBtn.style.display="none";
+  logoutBtn.style.display="inline-block";
 
   const roleDoc=await getDoc(doc(db,"users",user.uid));
   if(roleDoc.exists() && roleDoc.data().role==="admin"){
    isAdmin=true;
-   document.getElementById("adminPanel").style.display="block";
+   adminPanel.style.display="block";
   }
  }else{
-  document.getElementById("loginBtn").style.display="inline-block";
-  document.getElementById("logoutBtn").style.display="none";
-  document.getElementById("adminPanel").style.display="none";
+  loginBtn.style.display="inline-block";
+  logoutBtn.style.display="none";
+  adminPanel.style.display="none";
   isAdmin=false;
  }
 
@@ -243,7 +314,7 @@ onAuthStateChanged(auth, async(user)=>{
 async function loadProducts(){
  const snap=await getDocs(collection(db,"products"));
  allProducts=[];
- document.getElementById("productList").innerHTML="";
+ productList.innerHTML="";
  snap.forEach(docSnap=>{
   const p=docSnap.data();
   p.id=docSnap.id;
@@ -254,16 +325,15 @@ async function loadProducts(){
 }
 
 function displayProducts(products){
- const list=document.getElementById("productList");
- list.innerHTML="";
+ productList.innerHTML="";
  products.forEach(p=>{
-  list.innerHTML+=`
+  productList.innerHTML+=`
    <div class="card">
     <img src="${p.image}">
     <h3>${p.title}</h3>
     <p>${p.desc}</p>
-    <p>₹${p.price}</p>
-    <a href="${p.link}" target="_blank">View</a>
+    <p><strong>₹${p.price}</strong></p>
+    <a href="${p.link}" target="_blank">View Deal →</a>
     ${isAdmin?`<button class="deleteBtn" onclick="deleteProduct('${p.id}')">Delete</button>`:""}
    </div>
   `;
@@ -299,14 +369,12 @@ window.addCategory=async()=>{
 
 async function loadCategories(){
  const snap=await getDocs(collection(db,"categories"));
- const catList=document.getElementById("categoryList");
- const select=document.getElementById("productCategory");
- catList.innerHTML="";
- select.innerHTML="";
+ categoryList.innerHTML="";
+ productCategory.innerHTML="";
  snap.forEach(docSnap=>{
   const c=docSnap.data();
-  catList.innerHTML+=`<p>${c.name}</p>`;
-  select.innerHTML+=`<option value="${c.name}">${c.name}</option>`;
+  categoryList.innerHTML+=`<p>${c.name}</p>`;
+  productCategory.innerHTML+=`<option value="${c.name}">${c.name}</option>`;
  });
 }
 
