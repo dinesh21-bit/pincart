@@ -1,310 +1,324 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>PINCart - Affiliate Platform</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pincart</title>
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+<link id="favicon" rel="icon" href="logo.png">
 
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-      font-family:'Poppins', sans-serif;
-    }
+<style>
+body{
+ margin:0;
+ font-family:Arial;
+ background:#f4f6f9;
+}
 
-    body{
-      background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-      color:white;
-      min-height:100vh;
-    }
+header{
+ background:#111;
+ color:white;
+ padding:15px;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+}
 
-    /* NAVBAR */
-    .navbar{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      padding:20px 60px;
-      background:rgba(255,255,255,0.08);
-      backdrop-filter:blur(15px);
-      position:sticky;
-      top:0;
-      z-index:1000;
-    }
+header h1{
+ display:flex;
+ align-items:center;
+}
 
-    .logo{
-      font-size:26px;
-      font-weight:700;
-    }
+header img{
+ width:40px;
+ height:40px;
+ margin-right:10px;
+ border-radius:6px;
+}
 
-    .logo span{
-      color:#00f2fe;
-    }
+nav a{
+ color:white;
+ margin-right:15px;
+ cursor:pointer;
+ text-decoration:none;
+}
 
-    .nav-links{
-      display:flex;
-      gap:25px;
-      list-style:none;
-    }
+footer{
+ background:#111;
+ color:white;
+ padding:15px;
+ text-align:center;
+ margin-top:20px;
+}
 
-    .nav-links a{
-      color:white;
-      text-decoration:none;
-      font-weight:500;
-      cursor:pointer;
-    }
+button{
+ padding:6px 10px;
+ border:none;
+ border-radius:5px;
+ cursor:pointer;
+}
 
-    .nav-links a:hover{
-      color:#00f2fe;
-    }
+#loginBtn{background:#28a745;color:white;}
+#logoutBtn{background:red;color:white;display:none;}
 
-    .admin-btn{
-      background:#00f2fe;
-      padding:8px 18px;
-      border-radius:20px;
-      color:black !important;
-      font-weight:600;
-    }
+.page{display:none;}
+.active{display:block;}
 
-    .section{
-      display:none;
-      padding:60px;
-    }
+.products{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+ gap:20px;
+ padding:20px;
+}
 
-    .active{
-      display:block;
-    }
+.card{
+ background:white;
+ padding:15px;
+ border-radius:10px;
+ box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
 
-    .hero{
-      text-align:center;
-      margin-bottom:40px;
-    }
+.card img{
+ width:100%;
+ height:200px;
+ object-fit:cover;
+ border-radius:8px;
+}
 
-    .products-container{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-      gap:25px;
-    }
+.deleteBtn{
+ background:red;
+ color:white;
+ margin-top:8px;
+}
 
-    .product-card{
-      background:rgba(255,255,255,0.08);
-      border-radius:20px;
-      overflow:hidden;
-      backdrop-filter:blur(10px);
-      transition:0.4s;
-    }
+#adminPanel{
+ display:none;
+ padding:20px;
+ margin:20px;
+ background:white;
+ border-radius:10px;
+}
 
-    .product-card:hover{
-      transform:translateY(-10px);
-    }
+.adminSection{
+ border:1px solid #ccc;
+ padding:15px;
+ margin-bottom:15px;
+ border-radius:8px;
+}
 
-    .product-card img{
-      width:100%;
-      height:230px;
-      object-fit:cover;
-    }
+.adminSection input,
+.adminSection textarea,
+.adminSection select{
+ width:100%;
+ margin-bottom:10px;
+ padding:6px;
+}
 
-    .product-info{
-      padding:20px;
-    }
-
-    .price{
-      color:#00f2fe;
-      font-weight:700;
-      margin:10px 0;
-    }
-
-    .buy-btn{
-      background:#00f2fe;
-      padding:8px 18px;
-      border-radius:20px;
-      text-decoration:none;
-      color:black;
-      font-weight:600;
-      display:inline-block;
-    }
-
-    input{
-      padding:10px;
-      width:250px;
-      margin:8px;
-      border:none;
-      border-radius:8px;
-    }
-
-    button{
-      padding:10px 20px;
-      border:none;
-      border-radius:20px;
-      background:#00f2fe;
-      font-weight:600;
-      cursor:pointer;
-    }
-
-    footer{
-      text-align:center;
-      padding:30px;
-      margin-top:40px;
-      background:rgba(255,255,255,0.05);
-    }
-  </style>
+</style>
 </head>
 
 <body>
 
-<nav class="navbar">
-  <div class="logo">PIN<span>Cart</span></div>
-  <ul class="nav-links">
-    <li><a onclick="showSection('home')">Home</a></li>
-    <li><a onclick="showSection('categories')">Categories</a></li>
-    <li><a onclick="showSection('about')">About</a></li>
-    <li><a onclick="showSection('admin')" class="admin-btn">Admin</a></li>
-  </ul>
-</nav>
+<header>
+ <h1>
+  <img id="headerLogo" src="logo.png">
+  Pincart
+ </h1>
 
-<!-- HOME -->
-<section id="home" class="section active">
-  <div class="hero">
-    <h1>Trending Products 🔥</h1>
-    <p>Discover Today’s Hottest Deals</p>
-  </div>
-  <div class="products-container" id="productsContainer"></div>
-</section>
+ <nav>
+   <a onclick="showPage('homePage')">Home</a>
+   <a onclick="showPage('categoryPage')">Categories</a>
+   <a onclick="showPage('aboutPage')">About</a>
+ </nav>
 
-<!-- CATEGORIES -->
-<section id="categories" class="section">
-  <div class="hero">
-    <h1>Browse Categories</h1>
-  </div>
-  <div class="products-container" id="categoriesContainer"></div>
-</section>
+ <div>
+  <button id="loginBtn">Login</button>
+  <button id="logoutBtn">Logout</button>
+ </div>
+</header>
 
-<!-- ABOUT -->
-<section id="about" class="section">
-  <div class="hero">
-    <h1>About PINCart</h1>
-    <p>Pincart is a multi-category affiliate platform that curates and showcases the most trending and high-demand products across the internet. Our mission is to help users discover smart, useful, and viral products in one place — without wasting time searching through multiple websites.
+<!-- HOME PAGE -->
+<div id="homePage" class="page active">
+ <div class="products" id="productList"></div>
+</div>
 
-We carefully select products that are currently popular, highly rated, and worth buying. From electronics and fashion to home essentials and lifestyle gadgets, Pincart brings you what’s hot right now.
+<!-- CATEGORY PAGE -->
+<div id="categoryPage" class="page">
+ <h2 style="padding:20px;">Categories</h2>
+ <div id="categoryList" style="padding:20px;"></div>
+</div>
 
-Instead of selling products directly, Pincart connects users to trusted marketplaces through affiliate links, ensuring a safe and seamless shopping experience.
+<!-- ABOUT PAGE -->
+<div id="aboutPage" class="page" style="padding:20px;">
+ <h2>About Pincart</h2>
+ <p><b>About:</b> Pincart is a multi-category affiliate marketing platform posting trending products.</p>
+ <p><b>Vision:</b> To become India's trusted product discovery brand.</p>
+ <p><b>Mission:</b> Deliver best trending deals daily.</p>
+</div>
 
-At Pincart, we believe in:
+<!-- ADMIN PANEL -->
+<div id="adminPanel">
 
-🚀 Trending products only
-
-💡 Smart shopping decisions
-
-🔍 Easy product discovery
-
-📈 Constantly updated collections
-
-Pincart is not just a website — it’s your shortcut to what’s trending.</p>
-  </div>
-</section>
-
-<!-- ADMIN -->
-<section id="admin" class="section">
-  <div class="hero">
-    <h1>Admin Panel</h1>
-  </div>
-
-  <h3>Add Product</h3>
-  <input id="name" placeholder="Product Name">
-  <input id="price" placeholder="Price">
-  <input id="image" placeholder="Image URL">
-  <input id="link" placeholder="Affiliate Link">
-  <button onclick="addProduct()">Add Product</button>
-
-  <br><br>
-
-  <h3>Add Category</h3>
-  <input id="catName" placeholder="Category Name">
+ <div class="adminSection">
+  <h4>Add Category</h4>
+  <input type="text" id="categoryName" placeholder="Category Name">
   <button onclick="addCategory()">Add Category</button>
-</section>
+ </div>
+
+ <div class="adminSection">
+  <h4>Add Product</h4>
+  <input type="text" id="title" placeholder="Title">
+  <textarea id="desc" placeholder="Description"></textarea>
+  <input type="number" id="price" placeholder="Price">
+  <input type="text" id="link" placeholder="Affiliate Link">
+  <select id="productCategory"></select>
+  <input type="file" id="image">
+  <button onclick="addProduct()">Add Product</button>
+ </div>
+
+</div>
 
 <footer>
-  © 2026 PINCart | Affiliate Marketing Platform
+ © 2026 Pincart
 </footer>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } 
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDG48UV13XoQ1qtw5xtpnDnSwtmi4MUw84",
-  authDomain: "pincart-245f7.firebaseapp.com",
-  projectId: "pincart-245f7",
-  storageBucket: "pincart-245f7.firebasestorage.app",
-  messagingSenderId: "812846953819",
-  appId: "1:812846953819:web:5e2eb1b090e62c2367567e"
+ apiKey: "AIzaSyDG48UV13XoQ1qtw5xtpnDnSwtmi4MUw84",
+ authDomain: "pincart-245f7.firebaseapp.com",
+ projectId: "pincart-245f7",
+ storageBucket: "pincart-245f7.firebasestorage.app",
+ messagingSenderId: "812846953819",
+ appId: "1:812846953819:web:5e2eb1b090e62c2367567e"
 };
 
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 const db = getFirestore(app);
 
-window.showSection = function(id){
-  document.querySelectorAll(".section").forEach(sec=>sec.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
+let isAdmin=false;
+let allProducts=[];
 
-window.addProduct = async function(){
-  await addDoc(collection(db,"products"),{
-    name:name.value,
-    price:price.value,
-    image:image.value,
-    link:link.value
-  });
-  alert("Product Added ✅");
-  loadProducts();
-}
+window.showPage=function(page){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.getElementById(page).classList.add("active");
+};
 
-window.addCategory = async function(){
-  await addDoc(collection(db,"categories"),{
-    name:catName.value
-  });
-  alert("Category Added ✅");
-  loadCategories();
-}
+document.getElementById("loginBtn").onclick=()=>{
+ const email=prompt("Enter Email:");
+ const password=prompt("Enter Password:");
+ signInWithEmailAndPassword(auth,email,password)
+  .catch(err=>alert(err.message));
+};
+
+document.getElementById("logoutBtn").onclick=()=>signOut(auth);
+
+onAuthStateChanged(auth, async(user)=>{
+ if(user){
+  document.getElementById("loginBtn").style.display="none";
+  document.getElementById("logoutBtn").style.display="inline-block";
+
+  const roleDoc=await getDoc(doc(db,"users",user.uid));
+  if(roleDoc.exists() && roleDoc.data().role==="admin"){
+   isAdmin=true;
+   document.getElementById("adminPanel").style.display="block";
+  }
+ }else{
+  document.getElementById("loginBtn").style.display="inline-block";
+  document.getElementById("logoutBtn").style.display="none";
+  document.getElementById("adminPanel").style.display="none";
+  isAdmin=false;
+ }
+
+ loadProducts();
+ loadCategories();
+});
 
 async function loadProducts(){
-  const snapshot = await getDocs(collection(db,"products"));
-  const container = document.getElementById("productsContainer");
-  container.innerHTML="";
-  snapshot.forEach(doc=>{
-    const p=doc.data();
-    container.innerHTML+=`
-    <div class="product-card">
-      <img src="${p.image}">
-      <div class="product-info">
-        <h3>${p.name}</h3>
-        <p class="price">₹${p.price}</p>
-        <a href="${p.link}" target="_blank" class="buy-btn">View Deal</a>
-      </div>
-    </div>`;
-  });
+ const snap=await getDocs(collection(db,"products"));
+ allProducts=[];
+ document.getElementById("productList").innerHTML="";
+ snap.forEach(docSnap=>{
+  const p=docSnap.data();
+  p.id=docSnap.id;
+  allProducts.push(p);
+ });
+
+ displayProducts(allProducts);
 }
+
+function displayProducts(products){
+ const list=document.getElementById("productList");
+ list.innerHTML="";
+ products.forEach(p=>{
+  list.innerHTML+=`
+   <div class="card">
+    <img src="${p.image}">
+    <h3>${p.title}</h3>
+    <p>${p.desc}</p>
+    <p>₹${p.price}</p>
+    <a href="${p.link}" target="_blank">View</a>
+    ${isAdmin?`<button class="deleteBtn" onclick="deleteProduct('${p.id}')">Delete</button>`:""}
+   </div>
+  `;
+ });
+}
+
+window.addProduct=async()=>{
+ const title=document.getElementById("title").value;
+ const desc=document.getElementById("desc").value;
+ const price=parseFloat(document.getElementById("price").value);
+ const link=document.getElementById("link").value;
+ const category=document.getElementById("productCategory").value;
+ const file=document.getElementById("image").files[0];
+ const image=await toBase64(file);
+
+ await addDoc(collection(db,"products"),{
+  title,desc,price,link,image,category
+ });
+
+ loadProducts();
+};
+
+window.deleteProduct=async(id)=>{
+ await deleteDoc(doc(db,"products",id));
+ loadProducts();
+};
+
+window.addCategory=async()=>{
+ const name=document.getElementById("categoryName").value;
+ await addDoc(collection(db,"categories"),{name});
+ loadCategories();
+};
 
 async function loadCategories(){
-  const snapshot = await getDocs(collection(db,"categories"));
-  const container = document.getElementById("categoriesContainer");
-  container.innerHTML="";
-  snapshot.forEach(doc=>{
-    const c=doc.data();
-    container.innerHTML+=`
-    <div class="product-card">
-      <div class="product-info">
-        <h3>${c.name}</h3>
-      </div>
-    </div>`;
-  });
+ const snap=await getDocs(collection(db,"categories"));
+ const catList=document.getElementById("categoryList");
+ const select=document.getElementById("productCategory");
+ catList.innerHTML="";
+ select.innerHTML="";
+ snap.forEach(docSnap=>{
+  const c=docSnap.data();
+  catList.innerHTML+=`<p>${c.name}</p>`;
+  select.innerHTML+=`<option value="${c.name}">${c.name}</option>`;
+ });
 }
 
-loadProducts();
-loadCategories();
+function toBase64(file){
+ return new Promise((resolve,reject)=>{
+  const reader=new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload=()=>resolve(reader.result);
+  reader.onerror=error=>reject(error);
+ });
+}
+
 </script>
 
 </body>
