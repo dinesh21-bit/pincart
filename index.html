@@ -83,7 +83,8 @@ button{
  border-radius:30px;
  cursor:pointer;
  font-weight:600;
- margin-top:10px;
+ transition:0.3s;
+ margin-top:8px;
 }
 
 .deleteBtn{
@@ -122,6 +123,7 @@ button{
  backdrop-filter:blur(25px);
  padding:22px;
  border-radius:25px;
+ transition:0.4s;
  box-shadow:0 15px 40px rgba(0,0,0,0.5);
 }
 
@@ -144,6 +146,7 @@ button{
  background:rgba(255,255,255,0.08);
  backdrop-filter:blur(25px);
  border-radius:25px;
+ box-shadow:0 15px 40px rgba(0,0,0,0.6);
 }
 
 .adminSection{
@@ -158,6 +161,7 @@ button{
  margin-top:10px;
  border:none;
  border-radius:12px;
+ outline:none;
  background:rgba(255,255,255,0.12);
  color:white;
 }
@@ -220,6 +224,7 @@ footer{
 
 <div id="aboutPage" class="page">
  <h2>About Pincart</h2>
+ <p><b>Pincart</b> is a premium multi-category affiliate marketing platform.</p>
 </div>
 
 <div id="adminPanel">
@@ -227,6 +232,12 @@ footer{
  <div class="statsGrid">
    <div class="statCard">Total Products: <span id="totalProducts">0</span></div>
    <div class="statCard">Total Categories: <span id="totalCategories">0</span></div>
+ </div>
+
+ <div class="adminSection">
+  <h3>Upload Logo</h3>
+  <input type="file" id="logoUpload">
+  <button onclick="uploadLogo()">Update Logo</button>
  </div>
 
  <div class="adminSection">
@@ -249,7 +260,7 @@ footer{
 </div>
 
 <footer>
- © 2026 Pincart
+ © 2026 Pincart — Affiliate Platform
 </footer>
 
 <script type="module">
@@ -260,7 +271,14 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = { /* SAME CONFIG */ };
+const firebaseConfig = {
+ apiKey: "AIzaSyDG48UV13XoQ1qtw5xtpnDnSwtmi4MUw84",
+ authDomain: "pincart-245f7.firebaseapp.com",
+ projectId: "pincart-245f7",
+ storageBucket: "pincart-245f7.firebasestorage.app",
+ messagingSenderId: "812846953819",
+ appId: "1:812846953819:web:5e2eb1b090e62c2367567e"
+};
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -275,14 +293,14 @@ window.showPage=function(page){
  document.getElementById(page).classList.add("active");
 };
 
-loginBtn.onclick=()=>{
+document.getElementById("loginBtn").onclick=()=>{
  const email=prompt("Enter Email:");
  const password=prompt("Enter Password:");
  signInWithEmailAndPassword(auth,email,password)
   .catch(err=>alert(err.message));
 };
 
-logoutBtn.onclick=()=>signOut(auth);
+document.getElementById("logoutBtn").onclick=()=>signOut(auth);
 
 onAuthStateChanged(auth, async(user)=>{
  if(user){
@@ -296,8 +314,8 @@ onAuthStateChanged(auth, async(user)=>{
   adminPanel.style.display="none";
   isAdmin=false;
  }
- loadProducts();
- loadCategories();
+ await loadProducts();
+ await loadCategories();
 });
 
 async function loadProducts(){
@@ -308,13 +326,13 @@ async function loadProducts(){
   p.id=docSnap.id;
   allProducts.push(p);
  });
- displayProducts();
+ displayProducts(allProducts);
  totalProducts.innerText=allProducts.length;
 }
 
-function displayProducts(){
+function displayProducts(products){
  productList.innerHTML="";
- allProducts.forEach(p=>{
+ products.forEach(p=>{
   productList.innerHTML+=`
    <div class="card">
     <img src="${p.image}">
@@ -331,8 +349,8 @@ function displayProducts(){
 async function loadCategories(){
  const snap=await getDocs(collection(db,"categories"));
  allCategories=[];
- categoryContainer.innerHTML="";
  productCategory.innerHTML="";
+ categoryContainer.innerHTML="";
 
  snap.forEach(docSnap=>{
   const c=docSnap.data();
@@ -342,25 +360,25 @@ async function loadCategories(){
 
   const filtered=allProducts.filter(p=>p.category===c.name);
 
-  let productsHTML="";
+  let productHTML="";
   filtered.forEach(p=>{
-    productsHTML+=`
-      <div class="card">
-        <img src="${p.image}">
-        <h3>${p.title}</h3>
-        ${isAdmin ? `<button class="deleteBtn" onclick="deleteProduct('${p.id}')">Delete</button>` : ""}
-      </div>
-    `;
+   productHTML+=`
+    <div class="card">
+      <img src="${p.image}">
+      <h3>${p.title}</h3>
+      ${isAdmin ? `<button class="deleteBtn" onclick="deleteProduct('${p.id}')">Delete</button>` : ""}
+    </div>
+   `;
   });
 
   categoryContainer.innerHTML+=`
-    <div class="categoryBox">
-      <h3>
-        ${c.name}
-        ${isAdmin ? `<button class="deleteBtn" onclick="deleteCategory('${c.id}')">Delete</button>` : ""}
-      </h3>
-      <div class="products">${productsHTML}</div>
-    </div>
+   <div class="categoryBox">
+    <h3>
+      ${c.name}
+      ${isAdmin ? `<button class="deleteBtn" onclick="deleteCategory('${c.id}')">Delete</button>` : ""}
+    </h3>
+    <div class="products">${productHTML}</div>
+   </div>
   `;
  });
 
@@ -369,13 +387,13 @@ async function loadCategories(){
 
 window.deleteProduct=async(id)=>{
  await deleteDoc(doc(db,"products",id));
- loadProducts();
- loadCategories();
+ await loadProducts();
+ await loadCategories();
 };
 
 window.deleteCategory=async(id)=>{
  await deleteDoc(doc(db,"categories",id));
- loadCategories();
+ await loadCategories();
 };
 
 window.addCategory=async()=>{
@@ -398,6 +416,16 @@ window.addProduct=async()=>{
   loadProducts();
  };
  reader.readAsDataURL(image.files[0]);
+};
+
+window.uploadLogo=function(){
+ const file=logoUpload.files[0];
+ const reader=new FileReader();
+ reader.onload=function(){
+  headerLogo.src=reader.result;
+  favicon.href=reader.result;
+ };
+ reader.readAsDataURL(file);
 };
 
 </script>
