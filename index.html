@@ -341,15 +341,193 @@ footer{
  © 2026 Pincart — Premium Affiliate Platform
 </footer>
 
-<!-- YOUR ORIGINAL FIREBASE SCRIPT COMPLETELY UNCHANGED -->
 <script type="module">
-/* YOUR EXACT SAME FIREBASE JS CODE HERE — NOT MODIFIED */
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc, updateDoc }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = { /* YOUR SAME CONFIG */ 
+ apiKey: "AIzaSyDG48UV13XoQ1qtw5xtpnDnSwtmi4MUw84",
+ authDomain: "pincart-245f7.firebaseapp.com",
+ projectId: "pincart-245f7",
+ storageBucket: "pincart-245f7.firebasestorage.app",
+ messagingSenderId: "812846953819",
+ appId: "1:812846953819:web:5e2eb1b090e62c2367567e"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let isAdmin=false;
+let allProducts=[];
+let allCategories=[];
+
+window.showPage=function(page){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.getElementById(page).classList.add("active");
+};
+
+window.searchProducts=function(){
+ const value=document.getElementById("searchInput").value.toLowerCase();
+ const filtered=allProducts.filter(p =>
+   p.title.toLowerCase().includes(value) ||
+   p.desc.toLowerCase().includes(value)
+ );
+ displayProducts(filtered);
+};
+
+document.getElementById("loginBtn").onclick=()=>{
+ const email=prompt("Enter Email:");
+ const password=prompt("Enter Password:");
+ signInWithEmailAndPassword(auth,email,password)
+  .catch(err=>alert(err.message));
+};
+
+document.getElementById("logoutBtn").onclick=()=>signOut(auth);
+
+onAuthStateChanged(auth, async(user)=>{
+ if(user){
+  loginBtn.style.display="none";
+  logoutBtn.style.display="inline-block";
+  const roleDoc=await getDoc(doc(db,"users",user.uid));
+  if(roleDoc.exists() && roleDoc.data().role==="admin"){
+   isAdmin=true;
+   adminPanel.style.display="block";
+  }
+ }else{
+  loginBtn.style.display="inline-block";
+  logoutBtn.style.display="none";
+  adminPanel.style.display="none";
+  isAdmin=false;
+ }
+
+ loadProducts();
+ loadCategories();
+});
+
+/* PRODUCTS */
+async function loadProducts(){
+ const snap=await getDocs(collection(db,"products"));
+ allProducts=[];
+ snap.forEach(docSnap=>{
+  const p=docSnap.data();
+  p.id=docSnap.id;
+  allProducts.push(p);
+ });
+ displayProducts(allProducts);
+ populateAssignProducts();
+}
+
+function displayProducts(products){
+ productList.innerHTML="";
+ products.forEach(p=>{
+  productList.innerHTML+=`
+   <div class="card">
+    <img src="${p.image}">
+    <h3>${p.title}</h3>
+    <p>${p.desc}</p>
+    <p><strong>₹${p.price}</strong></p>
+    <a href="${p.link}" target="_blank">View Deal →</a>
+    ${isAdmin?`<button class="deleteBtn" onclick="deleteProduct('${p.id}')">Delete</button>`:""}
+   </div>
+  `;
+ });
+}
+
+window.addProduct=async()=>{
+ const title=title.value;
+ const desc=desc.value;
+ const price=parseFloat(price.value);
+ const link=link.value;
+ const category=productCategory.value;
+ const file=image.files[0];
+ const img=await toBase64(file);
+
+ await addDoc(collection(db,"products"),{
+  title,desc,price,link,image:img,category
+ });
+
+ loadProducts();
+};
+
+window.assignProductToCategory=async()=>{
+ const productId=assignProduct.value;
+ const category=assignCategory.value;
+ await updateDoc(doc(db,"products",productId),{category});
+ loadCategories();
+};
+
+async function loadCategories(){
+ const snap=await getDocs(collection(db,"categories"));
+ allCategories=[];
+ categoryContainer.innerHTML="";
+ productCategory.innerHTML="";
+ assignCategory.innerHTML="";
+
+ snap.forEach(docSnap=>{
+  const c=docSnap.data();
+  c.id=docSnap.id;
+  allCategories.push(c);
+
+  productCategory.innerHTML+=`<option value="${c.name}">${c.name}</option>`;
+  assignCategory.innerHTML+=`<option value="${c.name}">${c.name}</option>`;
+
+  const filtered=allProducts.filter(p=>p.category===c.name);
+
+  let productsHTML="";
+  filtered.forEach(p=>{
+    productsHTML+=`
+      <div class="card">
+        <img src="${p.image}">
+        <h3>${p.title}</h3>
+        <p>${p.desc}</p>
+      </div>
+    `;
+  });
+
+  categoryContainer.innerHTML+=`
+    <div class="categoryBox">
+      <h3>${c.name}</h3>
+      <div class="products">${productsHTML}</div>
+    </div>
+  `;
+ });
+}
+
+function populateAssignProducts(){
+ assignProduct.innerHTML="";
+ allProducts.forEach(p=>{
+  assignProduct.innerHTML+=`<option value="${p.id}">${p.title}</option>`;
+ });
+}
+
+window.addCategory=async()=>{
+ const name=categoryName.value;
+ await addDoc(collection(db,"categories"),{name});
+ loadCategories();
+};
+
+window.deleteProduct=async(id)=>{
+ await deleteDoc(doc(db,"products",id));
+ loadProducts();
+};
+
+function toBase64(file){
+ return new Promise((resolve,reject)=>{
+  const reader=new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload=()=>resolve(reader.result);
+  reader.onerror=error=>reject(error);
+ });
+}
+
 </script>
 
 </body>
 </html>
-</script>
 
-</body>
-</html>
 
