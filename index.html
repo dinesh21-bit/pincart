@@ -8,22 +8,137 @@
 <link id="favicon" rel="icon" href="logo.png">
 
 <style>
-/* YOUR SAME CSS — NOT CHANGED */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
-*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins;}
-body{background: radial-gradient(circle at top left,#0f2027,#203a43,#2c5364);color:white;min-height:100vh;}
-header{background:rgba(255,255,255,0.08);backdrop-filter:blur(20px);padding:18px 50px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:1000;}
-header img{width:45px;height:45px;margin-right:12px;border-radius:12px;}
-nav a{color:white;margin:0 18px;text-decoration:none;cursor:pointer;}
+
+*{
+ margin:0;
+ padding:0;
+ box-sizing:border-box;
+ font-family:Poppins;
+ scroll-behavior:smooth;
+}
+
+body{
+ background: radial-gradient(circle at top left,#0f2027,#203a43,#2c5364);
+ color:white;
+ min-height:100vh;
+}
+
+/* HEADER */
+header{
+ background:rgba(255,255,255,0.08);
+ backdrop-filter:blur(20px);
+ padding:18px 50px;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ position:sticky;
+ top:0;
+ z-index:1000;
+ border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+header h1{
+ display:flex;
+ align-items:center;
+ font-size:24px;
+ font-weight:700;
+ letter-spacing:1px;
+}
+
+header img{
+ width:45px;
+ height:45px;
+ margin-right:12px;
+ border-radius:12px;
+ box-shadow:0 0 15px rgba(0,242,254,0.6);
+}
+
+nav a{
+ color:white;
+ margin:0 18px;
+ text-decoration:none;
+ font-weight:500;
+ cursor:pointer;
+}
+
+button{
+ padding:9px 18px;
+ border:none;
+ border-radius:30px;
+ cursor:pointer;
+ font-weight:600;
+}
+
+#loginBtn{
+ background:linear-gradient(45deg,#00f2fe,#4facfe);
+ color:black;
+}
+
+#logoutBtn{
+ background:linear-gradient(45deg,#ff416c,#ff4b2b);
+ color:white;
+ display:none;
+}
+
 .page{display:none;padding:50px;}
 .active{display:block;}
-.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:35px;margin-top:25px;}
-.card{background:rgba(255,255,255,0.07);padding:22px;border-radius:25px;}
-#adminPanel{display:none;margin:50px;padding:35px;background:rgba(255,255,255,0.08);border-radius:25px;}
+
+.products{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+ gap:35px;
+ margin-top:25px;
+}
+
+.card{
+ background:rgba(255,255,255,0.07);
+ padding:22px;
+ border-radius:25px;
+}
+
+/* ADMIN PANEL */
+#adminPanel{
+ display:none;
+ margin:50px;
+ padding:35px;
+ background:rgba(255,255,255,0.08);
+ border-radius:25px;
+}
+
 .adminSection{margin-bottom:35px;}
-.statsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:40px;}
-.statCard{background:rgba(255,255,255,0.1);padding:25px;border-radius:20px;text-align:center;}
-footer{text-align:center;padding:25px;margin-top:50px;background:rgba(0,0,0,0.5);}
+
+.adminSection input,
+.adminSection textarea,
+.adminSection select{
+ width:100%;
+ padding:12px;
+ margin-top:10px;
+ border:none;
+ border-radius:12px;
+}
+
+/* STATS */
+.stats{
+ display:flex;
+ gap:20px;
+ margin-bottom:30px;
+}
+
+.statBox{
+ flex:1;
+ background:rgba(255,255,255,0.1);
+ padding:20px;
+ border-radius:15px;
+ text-align:center;
+}
+
+footer{
+ text-align:center;
+ padding:25px;
+ margin-top:50px;
+ background:rgba(0,0,0,0.5);
+}
 </style>
 </head>
 
@@ -34,44 +149,59 @@ footer{text-align:center;padding:25px;margin-top:50px;background:rgba(0,0,0,0.5)
   <img id="headerLogo" src="logo.png">
   Pincart Pro
  </h1>
+
  <nav>
    <a onclick="showPage('homePage')">Home</a>
    <a onclick="showPage('categoryPage')">Categories</a>
    <a onclick="showPage('aboutPage')">About</a>
  </nav>
+
  <div>
   <button id="loginBtn">Login</button>
-  <button id="logoutBtn" style="display:none;">Logout</button>
+  <button id="logoutBtn">Logout</button>
  </div>
 </header>
 
+<!-- HOME -->
 <div id="homePage" class="page active">
  <h2>🔥 Trending Products</h2>
  <div class="products" id="productList"></div>
 </div>
 
+<!-- CATEGORIES -->
 <div id="categoryPage" class="page">
  <h2>📂 Categories</h2>
  <div id="categoryContainer"></div>
 </div>
 
+<!-- ABOUT -->
 <div id="aboutPage" class="page">
  <h2>About Pincart</h2>
- <p>Pincart is a premium affiliate platform.</p>
+ <p>Pincart is a premium multi-category affiliate marketing platform.</p>
 </div>
 
+<!-- ADMIN -->
 <div id="adminPanel">
 
- <!-- ✅ ADDED STATS -->
- <div class="statsGrid">
-   <div class="statCard">Products <strong id="totalProducts">0</strong></div>
-   <div class="statCard">Categories <strong id="totalCategories">0</strong></div>
-   <div class="statCard">Users <strong id="totalUsers">0</strong></div>
+ <!-- DASHBOARD STATS -->
+ <div class="stats">
+  <div class="statBox">
+   <h3>Total Products</h3>
+   <h2 id="totalProducts">0</h2>
+  </div>
+  <div class="statBox">
+   <h3>Total Categories</h3>
+   <h2 id="totalCategories">0</h2>
+  </div>
+  <div class="statBox">
+   <h3>Total Users</h3>
+   <h2 id="totalUsers">0</h2>
+  </div>
  </div>
 
- <!-- ✅ ADDED LOGO UPLOAD -->
+ <!-- LOGO UPLOAD -->
  <div class="adminSection">
-  <h3>Change Website Logo</h3>
+  <h3>Change Logo</h3>
   <input type="file" id="logoUpload">
   <button onclick="changeLogo()">Update Logo</button>
  </div>
@@ -103,13 +233,13 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* ✅ NAVIGATION WORKING */
+/* NAVIGATION (FIXED) */
 window.showPage=function(page){
  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
  document.getElementById(page).classList.add("active");
 };
 
-/* ✅ LOGIN WORKING */
+/* LOGIN */
 loginBtn.onclick=()=>{
  const email=prompt("Enter Email:");
  const password=prompt("Enter Password:");
@@ -119,19 +249,7 @@ loginBtn.onclick=()=>{
 
 logoutBtn.onclick=()=>signOut(auth);
 
-/* ✅ LOGO CHANGE */
-window.changeLogo=function(){
- const file=document.getElementById("logoUpload").files[0];
- if(!file)return;
- const reader=new FileReader();
- reader.onload=function(){
-   document.getElementById("headerLogo").src=reader.result;
-   document.getElementById("favicon").href=reader.result;
- };
- reader.readAsDataURL(file);
-};
-
-/* ✅ STATS */
+/* UPDATE STATS */
 async function updateStats(){
  const productsSnap=await getDocs(collection(db,"products"));
  const categoriesSnap=await getDocs(collection(db,"categories"));
@@ -142,11 +260,12 @@ async function updateStats(){
  totalUsers.innerText=usersSnap.size;
 }
 
-/* ✅ AUTH STATE */
+/* AUTH CHECK */
 onAuthStateChanged(auth, async(user)=>{
  if(user){
   loginBtn.style.display="none";
   logoutBtn.style.display="inline-block";
+
   const roleDoc=await getDoc(doc(db,"users",user.uid));
   if(roleDoc.exists() && roleDoc.data().role==="admin"){
    adminPanel.style.display="block";
@@ -158,6 +277,18 @@ onAuthStateChanged(auth, async(user)=>{
   adminPanel.style.display="none";
  }
 });
+
+/* LOGO CHANGE */
+window.changeLogo=function(){
+ const file=document.getElementById("logoUpload").files[0];
+ if(!file)return;
+ const reader=new FileReader();
+ reader.onload=function(){
+   document.getElementById("headerLogo").src=reader.result;
+   document.getElementById("favicon").href=reader.result;
+ };
+ reader.readAsDataURL(file);
+};
 
 </script>
 
