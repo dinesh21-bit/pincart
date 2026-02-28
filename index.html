@@ -8,18 +8,13 @@
 <link id="favicon" rel="icon" href="logo.png">
 
 <style>
-
-/* ============================
-   GLOBAL STYLES
-============================ */
-
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
 
 *{
  margin:0;
  padding:0;
  box-sizing:border-box;
- font-family:Poppins, sans-serif;
+ font-family:Poppins;
  scroll-behavior:smooth;
 }
 
@@ -30,14 +25,48 @@ body{
  overflow-x:hidden;
 }
 
-/* ============================
-   RESPONSIVE HEADER
-============================ */
+/* Animated Background */
+body::before{
+ content:"";
+ position:fixed;
+ width:600px;
+ height:600px;
+ background:radial-gradient(circle,#00f2fe55,transparent);
+ top:-200px;
+ left:-200px;
+ filter:blur(120px);
+ animation:moveBlob 12s infinite alternate ease-in-out;
+ z-index:-1;
+}
 
+body::after{
+ content:"";
+ position:fixed;
+ width:600px;
+ height:600px;
+ background:radial-gradient(circle,#ff416c55,transparent);
+ bottom:-200px;
+ right:-200px;
+ filter:blur(120px);
+ animation:moveBlob2 14s infinite alternate ease-in-out;
+ z-index:-1;
+}
+
+@keyframes moveBlob{
+ from{transform:translate(0,0);}
+ to{transform:translate(150px,100px);}
+}
+
+@keyframes moveBlob2{
+ from{transform:translate(0,0);}
+ to{transform:translate(-150px,-100px);}
+}
+
+/* Header */
 header{
  background:rgba(255,255,255,0.08);
  backdrop-filter:blur(25px);
- padding:18px 40px;
+ padding:18px 60px;
  display:flex;
  justify-content:space-between;
  align-items:center;
@@ -51,21 +80,23 @@ header{
 header h1{
  display:flex;
  align-items:center;
- font-size:22px;
+ font-size:26px;
  font-weight:800;
+ letter-spacing:1px;
 }
 
 header img{
- width:42px;
- height:42px;
- margin-right:10px;
+ width:45px;
+ height:45px;
+ margin-right:12px;
  border-radius:12px;
+ box-shadow:0 0 20px rgba(0,242,254,0.8);
  object-fit:cover;
 }
 
 nav{
  display:flex;
- gap:20px;
+ gap:25px;
  flex-wrap:wrap;
 }
 
@@ -74,173 +105,167 @@ nav a{
  text-decoration:none;
  font-weight:500;
  cursor:pointer;
+ transition:0.3s;
 }
 
 nav a:hover{
  color:#00f2fe;
 }
 
-header button{
- margin-left:10px;
+/* Responsive header */
+@media(max-width:900px){
+ header{
+  padding:15px 25px;
+ }
+ nav{
+  width:100%;
+  justify-content:center;
+  margin-top:15px;
+ }
 }
 
-/* ============================
-   PAGE LAYOUT
-============================ */
+/* Buttons */
+button{
+ padding:10px 22px;
+ border:none;
+ border-radius:30px;
+ cursor:pointer;
+ font-weight:600;
+ transition:0.3s;
+ margin-top:8px;
+}
 
+#loginBtn{
+ background:linear-gradient(45deg,#00f2fe,#4facfe);
+ color:black;
+}
+
+#logoutBtn{
+ background:linear-gradient(45deg,#ff416c,#ff4b2b);
+ color:white;
+ display:none;
+}
+
+.deleteBtn{
+ background:linear-gradient(45deg,#ff416c,#ff4b2b);
+ color:white;
+}
+
+/* Pages */
 .page{
  display:none;
- padding:40px;
- animation:fade 0.4s ease;
+ padding:60px;
+ animation:fade 0.5s ease-in-out;
 }
 
-.active{
- display:block;
-}
+.active{display:block;}
 
 @keyframes fade{
- from{opacity:0;}
- to{opacity:1;}
+ from{opacity:0;transform:translateY(20px);}
+ to{opacity:1;transform:translateY(0);}
 }
 
-/* ============================
-   PRODUCTS GRID
-============================ */
-
+/* Products Grid */
 .products{
  display:grid;
- grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
- gap:25px;
+ grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+ gap:35px;
  margin-top:30px;
 }
 
+@media(max-width:600px){
+ .products{
+  grid-template-columns:1fr;
+ }
+}
+
 .card{
- background:rgba(255,255,255,0.08);
- padding:20px;
- border-radius:20px;
- box-shadow:0 15px 35px rgba(0,0,0,0.5);
- transition:0.3s;
+ background:rgba(255,255,255,0.07);
+ backdrop-filter:blur(25px);
+ padding:25px;
+ border-radius:25px;
+ transition:0.4s;
+ box-shadow:0 20px 50px rgba(0,0,0,0.6);
 }
 
 .card:hover{
- transform:translateY(-6px);
+ transform:translateY(-8px) scale(1.02);
 }
 
 .card img{
  width:100%;
  height:200px;
  object-fit:cover;
- border-radius:15px;
-}
-
-.card h3{
- margin-top:10px;
- font-size:18px;
-}
-
-.card p{
- font-size:14px;
- opacity:0.9;
+ border-radius:18px;
+ margin-bottom:15px;
 }
 
 .card a{
  display:inline-block;
  margin-top:10px;
  color:#00f2fe;
+ font-weight:600;
  text-decoration:none;
 }
 
-.deleteBtn{
- background:red;
- color:white;
- border:none;
- padding:8px 15px;
+.categoryBox{
+ margin-bottom:50px;
+ padding:20px;
  border-radius:20px;
- margin-top:10px;
- cursor:pointer;
+ background:rgba(255,255,255,0.05);
+ backdrop-filter:blur(20px);
 }
 
-/* ============================
-   ADMIN PANEL
-============================ */
-
+/* Admin Panel */
 #adminPanel{
  display:none;
- margin:40px;
- padding:30px;
+ margin:60px;
+ padding:40px;
  background:rgba(255,255,255,0.08);
- border-radius:20px;
+ backdrop-filter:blur(25px);
+ border-radius:30px;
 }
 
 .adminSection{
- margin-bottom:30px;
+ margin-bottom:40px;
 }
 
 .adminSection input,
 .adminSection textarea,
 .adminSection select{
  width:100%;
- padding:12px;
- margin-top:10px;
+ padding:14px;
+ margin-top:12px;
  border:none;
- border-radius:12px;
+ border-radius:14px;
+ outline:none;
+ background:rgba(255,255,255,0.12);
+ color:white;
 }
 
-button{
- padding:10px 20px;
- border:none;
- border-radius:20px;
- cursor:pointer;
- margin-top:10px;
+.statsGrid{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+ gap:25px;
+ margin-bottom:40px;
 }
 
-#loginBtn{
- background:#00f2fe;
-}
-
-#logoutBtn{
- background:#ff416c;
- display:none;
-}
-
-/* ============================
-   RESPONSIVE DESIGN
-============================ */
-
-@media(max-width:768px){
-
- header{
-  padding:15px;
- }
-
- nav{
-  width:100%;
-  justify-content:center;
-  margin-top:10px;
- }
-
- .page{
-  padding:20px;
- }
-
- .products{
-  grid-template-columns:1fr;
- }
-
- header h1{
-  font-size:18px;
- }
-
+.statCard{
+ background:linear-gradient(135deg,#00f2fe33,#4facfe33);
+ padding:25px;
+ border-radius:25px;
+ text-align:center;
+ font-size:20px;
+ font-weight:700;
 }
 
 footer{
  text-align:center;
- padding:20px;
- background:#00000090;
- margin-top:40px;
- font-size:13px;
+ padding:30px;
+ margin-top:60px;
+ background:rgba(0,0,0,0.6);
+ font-size:14px;
 }
-
 </style>
 </head>
 
@@ -270,19 +295,24 @@ footer{
 </div>
 
 <div id="categoryPage" class="page">
- <h2>Categories</h2>
+ <h2>📂 Categories</h2>
  <div id="categoryContainer"></div>
 </div>
 
 <div id="aboutPage" class="page">
  <h2>About Pincart</h2>
- <p>Pincart is a multi-category affiliate platform showcasing trending and high-demand products.</p>
+ <p>Pincart is a multi-category affiliate platform that showcases trending and high-demand products from trusted marketplaces.</p>
 </div>
 
 <div id="adminPanel">
 
+ <div class="statsGrid">
+   <div class="statCard">Total Products: <span id="totalProducts">0</span></div>
+   <div class="statCard">Total Categories: <span id="totalCategories">0</span></div>
+ </div>
+
  <div class="adminSection">
-  <h3>Upload Logo (Permanent Cloud Storage)</h3>
+  <h3>Upload Logo</h3>
   <input type="file" id="logoUpload">
   <button onclick="uploadLogo()">Update Logo</button>
  </div>
@@ -309,7 +339,6 @@ footer{
 <footer>
  © 2026 Pincart — Affiliate Platform
 </footer>
-
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -321,7 +350,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const firebaseConfig = {
- apiKey: "YAIzaSyDG48UV13XoQ1qtw5xtpnDnSwtmi4MUw84",
+ apiKey: "AIzaSyDG48UV13XoQ1qtw5xtpnDnSwtmi4MUw84",
  authDomain: "pincart-245f7.firebaseapp.com",
  projectId: "pincart-245f7",
  storageBucket: "pincart-245f7.firebasestorage.app",
@@ -334,38 +363,135 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-/* ===== LOGO STORAGE ===== */
+let isAdmin=false;
+let allProducts=[];
+let allCategories=[];
 
+/* Auto Load Logo */
+async function loadLogo(){
+ try{
+  const logoRef = ref(storage,"logo/logo.png");
+  const url = await getDownloadURL(logoRef);
+  headerLogo.src=url;
+  favicon.href=url;
+ }catch(e){}
+}
+
+loadLogo();
+
+/* Storage Upload Logo */
 window.uploadLogo = async function(){
- const file = logoUpload.files[0];
- const storageRef = ref(storage, "logo/logo.png");
- await uploadBytes(storageRef, file);
- const url = await getDownloadURL(storageRef);
- headerLogo.src = url;
- favicon.href = url;
+ const file=logoUpload.files[0];
+ const logoRef=ref(storage,"logo/logo.png");
+ await uploadBytes(logoRef,file);
+ loadLogo();
 };
 
-/* ===== PRODUCT IMAGE STORAGE ===== */
-
-window.addProduct = async function(){
- const file = image.files[0];
- const storageRef = ref(storage, "products/"+Date.now()+"_"+file.name);
- await uploadBytes(storageRef, file);
- const imageURL = await getDownloadURL(storageRef);
+/* Product Image via Storage */
+window.addProduct=async()=>{
+ const file=image.files[0];
+ const imgRef=ref(storage,"products/"+Date.now()+"_"+file.name);
+ await uploadBytes(imgRef,file);
+ const imageURL=await getDownloadURL(imgRef);
 
  await addDoc(collection(db,"products"),{
-  title:title.value,
-  desc:desc.value,
-  price:parseFloat(price.value),
-  link:link.value,
-  category:productCategory.value,
-  image:imageURL
+   title:title.value,
+   desc:desc.value,
+   price:parseFloat(price.value),
+   link:link.value,
+   category:productCategory.value,
+   image:imageURL
  });
 
- alert("Product Added Successfully");
+ loadProducts();
+};
+
+/* Rest of original logic */
+window.showPage=function(page){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.getElementById(page).classList.add("active");
+};
+
+document.getElementById("loginBtn").onclick=()=>{
+ const email=prompt("Enter Email:");
+ const password=prompt("Enter Password:");
+ signInWithEmailAndPassword(auth,email,password)
+  .catch(err=>alert(err.message));
+};
+
+document.getElementById("logoutBtn").onclick=()=>signOut(auth);
+
+onAuthStateChanged(auth, async(user)=>{
+ if(user){
+  loginBtn.style.display="none";
+  logoutBtn.style.display="inline-block";
+  isAdmin=true;
+  adminPanel.style.display="block";
+ }else{
+  loginBtn.style.display="inline-block";
+  logoutBtn.style.display="none";
+  adminPanel.style.display="none";
+  isAdmin=false;
+ }
+ await loadProducts();
+ await loadCategories();
+});
+
+async function loadProducts(){
+ const snap=await getDocs(collection(db,"products"));
+ allProducts=[];
+ snap.forEach(docSnap=>{
+  const p=docSnap.data();
+  p.id=docSnap.id;
+  allProducts.push(p);
+ });
+ displayProducts(allProducts);
+ totalProducts.innerText=allProducts.length;
+}
+
+function displayProducts(products){
+ productList.innerHTML="";
+ products.forEach(p=>{
+  productList.innerHTML+=`
+   <div class="card">
+    <img src="${p.image}">
+    <h3>${p.title}</h3>
+    <p>${p.desc}</p>
+    <p><strong>₹${p.price}</strong></p>
+    <a href="${p.link}" target="_blank">View Deal →</a>
+    ${isAdmin ? `<button class="deleteBtn" onclick="deleteProduct('${p.id}')">Delete</button>` : ""}
+   </div>
+  `;
+ });
+}
+
+async function loadCategories(){
+ const snap=await getDocs(collection(db,"categories"));
+ allCategories=[];
+ productCategory.innerHTML="";
+ categoryContainer.innerHTML="";
+
+ snap.forEach(docSnap=>{
+  const c=docSnap.data();
+  c.id=docSnap.id;
+  allCategories.push(c);
+  productCategory.innerHTML+=`<option>${c.name}</option>`;
+ });
+
+ totalCategories.innerText=allCategories.length;
+}
+
+window.deleteProduct=async(id)=>{
+ await deleteDoc(doc(db,"products",id));
+ loadProducts();
+};
+
+window.addCategory=async()=>{
+ const name=categoryName.value;
+ await addDoc(collection(db,"categories"),{name});
+ loadCategories();
 };
 
 </script>
-
 </body>
 </html>
