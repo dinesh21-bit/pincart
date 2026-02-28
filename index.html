@@ -199,120 +199,203 @@ button{
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc }
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDG48UV13XoQ1qtw5xtpnDnSwtmi4MUw84",
-  authDomain: "pincart-245f7.firebaseapp.com",
-  projectId: "pincart-245f7",
-  storageBucket: "pincart-245f7.firebasestorage.app",
-  messagingSenderId: "812846953819",
-  appId: "1:812846953819:web:5e2eb1b090e62c2367567e"
+ apiKey: "AIzaSyDG48UV13XoQ1qtw5xtpnDnSwtmi4MUw84",
+ authDomain: "pincart-245f7.firebaseapp.com",
+ projectId: "pincart-245f7",
+ storageBucket: "pincart-245f7.firebasestorage.app",
+ messagingSenderId: "812846953819",
+ appId: "1:812846953819:web:5e2eb1b090e62c2367567e"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
 
-let isAdmin = false;
-
-/* DOM */
+/* ===== DEFINE ALL DOM ELEMENTS (THIS WAS MISSING) ===== */
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const adminPanel = document.getElementById("adminPanel");
 const productList = document.getElementById("productList");
+const totalProducts = document.getElementById("totalProducts");
+const totalCategories = document.getElementById("totalCategories");
+const categoryName = document.getElementById("categoryName");
 const productCategory = document.getElementById("productCategory");
+const categoryContainer = document.getElementById("categoryContainer");
+const headerLogo = document.getElementById("headerLogo");
+const favicon = document.getElementById("favicon");
+const logoUpload = document.getElementById("logoUpload");
+const title = document.getElementById("title");
+const desc = document.getElementById("desc");
+const price = document.getElementById("price");
+const link = document.getElementById("link");
+const image = document.getElementById("image");
 
-/* LOGIN */
+let isAdmin = false;
+let allProducts = [];
+let allCategories = [];
+
+/* ===== PAGE SWITCH ===== */
+window.showPage = function(page){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.getElementById(page).classList.add("active");
+};
+
+/* ===== LOGIN ===== */
 loginBtn.onclick = () => {
-  const email = prompt("Enter Email:");
-  const pass = prompt("Enter Password:");
-  signInWithEmailAndPassword(auth,email,pass)
+ const email = prompt("Enter Email:");
+ const password = prompt("Enter Password:");
+ signInWithEmailAndPassword(auth,email,password)
   .catch(err=>alert(err.message));
 };
 
-logoutBtn.onclick = ()=> signOut(auth);
+logoutBtn.onclick = () => signOut(auth);
 
-/* AUTH STATE */
+/* ===== AUTH STATE ===== */
 onAuthStateChanged(auth, async(user)=>{
-  if(user){
-    isAdmin=true;
-    loginBtn.style.display="none";
-    logoutBtn.style.display="inline-block";
-    adminPanel.style.display="block";
-  }else{
-    isAdmin=false;
-    loginBtn.style.display="inline-block";
-    logoutBtn.style.display="none";
-    adminPanel.style.display="none";
-  }
-  loadProducts();
-  loadCategories();
+ if(user){
+  loginBtn.style.display="none";
+  logoutBtn.style.display="inline-block";
+  adminPanel.style.display="block";
+  isAdmin=true;
+ }else{
+  loginBtn.style.display="inline-block";
+  logoutBtn.style.display="none";
+  adminPanel.style.display="none";
+  isAdmin=false;
+ }
+ await loadProducts();
+ await loadCategories();
 });
 
-/* LOAD PRODUCTS */
+/* ===== LOAD PRODUCTS ===== */
 async function loadProducts(){
-  productList.innerHTML="";
-  const snap = await getDocs(collection(db,"products"));
-  document.getElementById("totalProducts").innerText=snap.size;
-
-  snap.forEach(docSnap=>{
-    const p=docSnap.data();
-    productList.innerHTML+=`
-      <div class="card">
-        <img src="${p.image}">
-        <h3>${p.title}</h3>
-        <p>${p.desc}</p>
-        <p><strong>₹${p.price}</strong></p>
-        <a href="${p.link}" target="_blank">View</a>
-        ${isAdmin?`<button onclick="deleteProduct('${docSnap.id}')" class="danger-btn">Delete</button>`:""}
-      </div>`;
-  });
+ const snap=await getDocs(collection(db,"products"));
+ allProducts=[];
+ snap.forEach(docSnap=>{
+  const p=docSnap.data();
+  p.id=docSnap.id;
+  allProducts.push(p);
+ });
+ displayProducts(allProducts);
+ totalProducts.innerText=allProducts.length;
 }
 
-window.deleteProduct=async(id)=>{
-  await deleteDoc(doc(db,"products",id));
-  loadProducts();
-};
+function displayProducts(products){
+ productList.innerHTML="";
+ products.forEach(p=>{
+  productList.innerHTML+=`
+   <div class="card">
+    <img src="${p.image}">
+    <h3>${p.title}</h3>
+    <p>${p.desc}</p>
+    <p><strong>₹${p.price}</strong></p>
+    <a href="${p.link}" target="_blank">View Deal →</a>
+    ${isAdmin ? `<button class="deleteBtn" onclick="deleteProduct('${p.id}')">Delete</button>` : ""}
+   </div>
+  `;
+ });
+}
 
-/* ADD PRODUCT */
-document.getElementById("addProductBtn").onclick=()=>{
-  const reader=new FileReader();
-  reader.onload=async()=>{
-    await addDoc(collection(db,"products"),{
-      title:title.value,
-      desc:desc.value,
-      price:price.value,
-      link:link.value,
-      category:productCategory.value,
-      image:reader.result
-    });
-    loadProducts();
-  };
-  reader.readAsDataURL(image.files[0]);
-};
-
-/* CATEGORY */
-document.getElementById("addCategoryBtn").onclick=async()=>{
-  if(!categoryName.value) return;
-  await addDoc(collection(db,"categories"),{name:categoryName.value});
-  loadCategories();
-};
-
+/* ===== LOAD CATEGORIES ===== */
 async function loadCategories(){
-  const snap=await getDocs(collection(db,"categories"));
-  productCategory.innerHTML="";
-  document.getElementById("totalCategories").innerText=snap.size;
-  snap.forEach(d=>{
-    productCategory.innerHTML+=`<option>${d.data().name}</option>`;
+ const snap=await getDocs(collection(db,"categories"));
+ allCategories=[];
+ productCategory.innerHTML="";
+ categoryContainer.innerHTML="";
+
+ snap.forEach(docSnap=>{
+  const c=docSnap.data();
+  c.id=docSnap.id;
+  allCategories.push(c);
+
+  productCategory.innerHTML+=`<option>${c.name}</option>`;
+
+  const filtered=allProducts.filter(p=>p.category===c.name);
+
+  let productHTML="";
+  filtered.forEach(p=>{
+   productHTML+=`
+    <div class="card">
+      <img src="${p.image}">
+      <h3>${p.title}</h3>
+      ${isAdmin ? `<button class="deleteBtn" onclick="deleteProduct('${p.id}')">Delete</button>` : ""}
+    </div>
+   `;
   });
+
+  categoryContainer.innerHTML+=`
+   <div class="categoryBox">
+    <h3>
+      ${c.name}
+      ${isAdmin ? `<button class="deleteBtn" onclick="deleteCategory('${c.id}')">Delete</button>` : ""}
+    </h3>
+    <div class="products">${productHTML}</div>
+   </div>
+  `;
+ });
+
+ totalCategories.innerText=allCategories.length;
 }
+
+/* ===== DELETE ===== */
+window.deleteProduct = async(id)=>{
+ await deleteDoc(doc(db,"products",id));
+ await loadProducts();
+ await loadCategories();
+};
+
+window.deleteCategory = async(id)=>{
+ await deleteDoc(doc(db,"categories",id));
+ await loadCategories();
+};
+
+/* ===== ADD CATEGORY ===== */
+window.addCategory = async()=>{
+ const name = categoryName.value;
+ if(!name) return alert("Enter category name");
+ await addDoc(collection(db,"categories"),{name});
+ categoryName.value="";
+ loadCategories();
+};
+
+/* ===== ADD PRODUCT ===== */
+window.addProduct = async()=>{
+ if(!image.files[0]) return alert("Select image");
+
+ const reader=new FileReader();
+ reader.onload=async()=>{
+  await addDoc(collection(db,"products"),{
+   title:title.value,
+   desc:desc.value,
+   price:parseFloat(price.value),
+   link:link.value,
+   category:productCategory.value,
+   image:reader.result
+  });
+  loadProducts();
+ };
+ reader.readAsDataURL(image.files[0]);
+};
+
+/* ===== UPLOAD LOGO ===== */
+window.uploadLogo=function(){
+ const file=logoUpload.files[0];
+ if(!file) return alert("Select logo");
+
+ const reader=new FileReader();
+ reader.onload=function(){
+  headerLogo.src=reader.result;
+  favicon.href=reader.result;
+ };
+ reader.readAsDataURL(file);
+};
 
 </script>
 
 </body>
 </html>
+
