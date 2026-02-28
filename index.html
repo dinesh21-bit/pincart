@@ -409,9 +409,11 @@ h3{
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc }
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } 
+
+/* ✅ ADDED STORAGE */
+import { getStorage, ref, uploadBytes, getDownloadURL }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const firebaseConfig = {
@@ -426,6 +428,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+/* ✅ INITIALIZE STORAGE */
 const storage = getStorage(app);
 
 let isAdmin=false;
@@ -458,9 +462,53 @@ onAuthStateChanged(auth, async(user)=>{
   adminPanel.style.display="none";
   isAdmin=false;
  }
+
+ await loadLogo();   /* ✅ LOAD SAVED LOGO */
  await loadProducts();
  await loadCategories();
 });
+
+/* =========================
+   ✅ LOAD LOGO FROM FIRESTORE
+========================= */
+async function loadLogo(){
+ const logoDoc = await getDoc(doc(db,"settings","logo"));
+ if(logoDoc.exists()){
+   const logoURL = logoDoc.data().url;
+   headerLogo.src = logoURL;
+   favicon.href = logoURL;
+ }
+}
+
+/* =========================
+   ✅ UPLOAD LOGO TO STORAGE
+========================= */
+window.uploadLogo = async function(){
+ if(!isAdmin) return alert("Admin only");
+
+ const file = logoUpload.files[0];
+ if(!file) return alert("Select a file");
+
+ const storageRef = ref(storage, "logos/mainLogo.png");
+
+ await uploadBytes(storageRef, file);
+
+ const downloadURL = await getDownloadURL(storageRef);
+
+ /* Save URL in Firestore */
+ await setDoc(doc(db,"settings","logo"), {
+   url: downloadURL
+ });
+
+ headerLogo.src = downloadURL;
+ favicon.href = downloadURL;
+
+ alert("Logo Updated Successfully 🚀");
+};
+
+/* =========================
+   YOUR ORIGINAL CODE BELOW (UNCHANGED)
+========================= */
 
 async function loadProducts(){
  const snap=await getDocs(collection(db,"products"));
@@ -562,24 +610,7 @@ window.addProduct=async()=>{
  reader.readAsDataURL(image.files[0]);
 };
 
-window.uploadLogo=async function(){
- const file=logoUpload.files[0];
- if(!file) return;
-
- // Upload to Firebase Storage
- const storageRef = ref(storage, `logos/${file.name}`);
- await uploadBytes(storageRef, file);
-
- // Get download URL
- const url = await getDownloadURL(storageRef);
-
- // Update header and favicon
- headerLogo.src=url;
- favicon.href=url;
-
- alert("Logo updated and stored in Firebase!");
-};
-
 </script>
 </body>
 </html>
+
