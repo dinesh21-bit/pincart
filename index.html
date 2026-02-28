@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pincart</title>
+<title>Pincart Ultra</title>
+
+<link id="favicon" rel="icon">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
@@ -16,154 +18,234 @@
 }
 
 body{
+ min-height:100vh;
  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
  color:white;
- min-height:100vh;
+ overflow-x:hidden;
+ transition:0.4s;
 }
 
-/* HEADER */
+/* Floating Glow Background */
+body::before{
+ content:"";
+ position:fixed;
+ width:500px;
+ height:500px;
+ background:radial-gradient(circle,#00f2fe55,transparent);
+ top:-150px;
+ left:-150px;
+ filter:blur(120px);
+ z-index:-1;
+}
+
+body::after{
+ content:"";
+ position:fixed;
+ width:500px;
+ height:500px;
+ background:radial-gradient(circle,#ff416c55,transparent);
+ bottom:-150px;
+ right:-150px;
+ filter:blur(120px);
+ z-index:-1;
+}
+
+/* Header */
 header{
+ background:rgba(255,255,255,0.08);
+ backdrop-filter:blur(25px);
  padding:18px 40px;
  display:flex;
  justify-content:space-between;
  align-items:center;
- background:rgba(255,255,255,0.05);
- backdrop-filter:blur(20px);
  position:sticky;
  top:0;
  z-index:1000;
+ border-bottom:1px solid rgba(255,255,255,0.1);
 }
 
 header h1{
- font-size:22px;
+ display:flex;
+ align-items:center;
+ font-size:24px;
  font-weight:800;
 }
 
-nav button{
- margin-left:15px;
- padding:8px 18px;
- border:none;
- border-radius:20px;
- font-weight:600;
+header img{
+ width:45px;
+ height:45px;
+ margin-right:12px;
+ border-radius:12px;
+ box-shadow:0 0 15px #00f2fe;
+}
+
+nav a{
+ margin:0 15px;
  cursor:pointer;
- background:#00f2fe;
- color:black;
+ font-weight:500;
  transition:0.3s;
 }
 
-nav button:hover{
+nav a:hover{
+ color:#00f2fe;
+}
+
+button{
+ padding:10px 20px;
+ border:none;
+ border-radius:25px;
+ cursor:pointer;
+ font-weight:600;
+ transition:0.3s;
+}
+
+button:hover{
  transform:translateY(-3px);
+ box-shadow:0 10px 25px rgba(0,0,0,0.5);
 }
 
-/* CONTAINER */
-.container{
- max-width:1200px;
- margin:auto;
- padding:40px;
+#loginBtn{background:#00f2fe;color:black;}
+#logoutBtn{background:#ff416c;color:white;display:none;}
+.deleteBtn{background:#ff416c;color:white;}
+
+/* Pages */
+.page{
+ display:none;
+ padding:50px;
+ animation:fade 0.5s ease;
 }
 
-/* SEARCH */
-.searchBar{
+.active{display:block;}
+
+@keyframes fade{
+ from{opacity:0;transform:translateY(20px);}
+ to{opacity:1;transform:translateY(0);}
+}
+
+/* Search */
+#searchBar{
  width:100%;
+ max-width:500px;
  padding:14px;
+ margin-bottom:25px;
  border-radius:15px;
  border:none;
- margin-bottom:30px;
  background:rgba(255,255,255,0.1);
  color:white;
  outline:none;
 }
 
-/* PRODUCT GRID */
+#searchBar:focus{
+ box-shadow:0 0 15px #00f2fe;
+}
+
+/* Grid */
 .products{
  display:grid;
  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
- gap:25px;
+ gap:30px;
 }
 
 .card{
- background:rgba(255,255,255,0.08);
+ background:rgba(255,255,255,0.07);
  backdrop-filter:blur(20px);
- padding:18px;
- border-radius:18px;
+ padding:20px;
+ border-radius:20px;
+ box-shadow:0 20px 50px rgba(0,0,0,0.6);
  transition:0.4s;
- box-shadow:0 15px 40px rgba(0,0,0,0.5);
+ position:relative;
+ overflow:hidden;
 }
 
 .card:hover{
- transform:translateY(-8px);
- box-shadow:0 20px 60px rgba(0,242,254,0.4);
+ transform:translateY(-8px) scale(1.02);
+ box-shadow:0 25px 60px rgba(0,242,254,0.4);
 }
 
 .card img{
  width:100%;
  height:180px;
  object-fit:cover;
- border-radius:12px;
- margin-bottom:10px;
-}
-
-.price{
- font-weight:700;
- margin:8px 0;
+ border-radius:15px;
+ margin-bottom:12px;
 }
 
 .card a{
- display:inline-block;
- padding:8px 16px;
- border-radius:20px;
- background:#00f2fe;
- color:black;
+ color:#00f2fe;
  font-weight:600;
  text-decoration:none;
 }
 
-/* ADMIN PANEL */
+.categoryBox{
+ margin-bottom:40px;
+ padding:20px;
+ border-radius:20px;
+ background:rgba(255,255,255,0.05);
+}
+
+/* Admin */
 #adminPanel{
  display:none;
- margin-top:50px;
- padding:30px;
- background:rgba(255,255,255,0.07);
- border-radius:20px;
+ padding:40px;
+ background:rgba(255,255,255,0.08);
+ margin:40px;
+ border-radius:25px;
  backdrop-filter:blur(25px);
+ box-shadow:0 20px 60px rgba(0,0,0,0.7);
 }
 
-input, textarea, select{
+.adminSection{
+ margin-bottom:30px;
+}
+
+.adminSection input,
+.adminSection textarea,
+.adminSection select{
  width:100%;
  padding:12px;
- margin-bottom:15px;
- border:none;
+ margin-top:10px;
  border-radius:12px;
- background:rgba(255,255,255,0.1);
+ border:none;
+ background:rgba(255,255,255,0.12);
  color:white;
 }
 
-.admin-card{
- display:flex;
- justify-content:space-between;
- background:rgba(255,255,255,0.05);
- padding:10px;
- border-radius:12px;
- margin-bottom:10px;
+/* Footer */
+footer{
+ text-align:center;
+ padding:20px;
+ margin-top:50px;
+ background:#00000060;
 }
 
-.deleteBtn{
- background:#ff416c;
- border:none;
- padding:6px 12px;
- border-radius:15px;
- color:white;
- cursor:pointer;
+/* Loader */
+#loader{
+ position:fixed;
+ top:0;
+ left:0;
+ width:100%;
+ height:100%;
+ background:rgba(0,0,0,0.7);
+ display:none;
+ justify-content:center;
+ align-items:center;
+ z-index:2000;
 }
+
+.loader-circle{
+ width:60px;
+ height:60px;
+ border:6px solid #ffffff33;
+ border-top:6px solid #00f2fe;
+ border-radius:50%;
+ animation:spin 1s linear infinite;
+}
+
+@keyframes spin{to{transform:rotate(360deg);}}
 
 @media(max-width:768px){
- header{
-  flex-direction:column;
-  gap:10px;
- }
- .container{
-  padding:20px;
- }
+ header{flex-direction:column;gap:10px;}
+ .page{padding:25px;}
 }
 </style>
 </head>
@@ -171,174 +253,198 @@ input, textarea, select{
 <body>
 
 <header>
- <h1>Pincart</h1>
+ <h1>
+  <img id="headerLogo">
+  Pincart
+ </h1>
+
  <nav>
-  <button onclick="login()">Login</button>
-  <button onclick="logout()">Logout</button>
+   <a onclick="showPage('homePage')">Home</a>
+   <a onclick="showPage('categoryPage')">Categories</a>
+   <a onclick="showPage('aboutPage')">About</a>
  </nav>
+
+ <div>
+  <button id="loginBtn">Login</button>
+  <button id="logoutBtn">Logout</button>
+ </div>
 </header>
 
-<div class="container">
+<div id="homePage" class="page active">
+ <h2>🔥 Trending Products</h2>
+ <input type="text" id="searchBar" placeholder="Search products...">
+ <div class="products" id="productList"></div>
+</div>
 
- <input type="text" id="searchInput" class="searchBar" placeholder="Search products...">
+<div id="categoryPage" class="page">
+ <h2>📂 Categories</h2>
+ <div id="categoryContainer"></div>
+</div>
 
- <div class="products" id="productContainer"></div>
+<div id="aboutPage" class="page">
+ <h2>About Pincart</h2>
+ <p>Pincart is a premium multi-category affiliate marketing platform.</p>
+</div>
 
- <div id="adminPanel">
+<div id="adminPanel">
 
-  <h2>🔥 Admin Dashboard</h2>
+ <div class="adminSection">
+  <h3>Upload Logo</h3>
+  <input type="file" id="logoUpload">
+  <button onclick="uploadLogo()">Update Logo</button>
+ </div>
 
-  <input type="text" id="title" placeholder="Product Title">
-  <textarea id="description" placeholder="Description"></textarea>
+ <div class="adminSection">
+  <h3>Add Category</h3>
+  <input type="text" id="categoryName">
+  <button onclick="addCategory()">Add Category</button>
+ </div>
+
+ <div class="adminSection">
+  <h3>Add Product</h3>
+  <input type="text" id="title" placeholder="Title">
+  <textarea id="desc" placeholder="Description"></textarea>
   <input type="number" id="price" placeholder="Price">
-  <input type="text" id="affiliateLink" placeholder="Affiliate Link">
-  <select id="category">
-   <option value="Electronics">Electronics</option>
-   <option value="Fashion">Fashion</option>
-   <option value="Home">Home</option>
-  </select>
-  <input type="file" id="imageFile">
+  <input type="text" id="link" placeholder="Affiliate Link">
+  <select id="productCategory"></select>
+  <input type="file" id="image">
   <button onclick="addProduct()">Add Product</button>
-
-  <h3 style="margin-top:30px;">All Products</h3>
-  <div id="adminProducts"></div>
-
  </div>
 
 </div>
+
+<div id="loader"><div class="loader-circle"></div></div>
+
+<footer>
+ © 2026 Pincart — Affiliate Platform
+</footer>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, getDoc }
+import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, getDocs }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-const firebaseConfig = {
- apiKey: "AIzaSyDG48UV13XoQ1qtw5xtpnDnSwtmi4MUw84",
- authDomain: "pincart-245f7.firebaseapp.com",
- projectId: "pincart-245f7",
- storageBucket: "pincart-245f7.appspot.com",
- messagingSenderId: "812846953819",
- appId: "1:812846953819:web:5e2eb1b090e62c2367567e"
+const firebaseConfig={
+ apiKey:"AIzaSyDG48UV13XoQ1qtw5xtpnDnSwtmi4MUw84",
+ authDomain:"pincart-245f7.firebaseapp.com",
+ projectId:"pincart-245f7",
+ storageBucket:"pincart-245f7.firebasestorage.app",
+ messagingSenderId:"812846953819",
+ appId:"1:812846953819:web:5e2eb1b090e62c2367567e"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
 
 let isAdmin=false;
 let allProducts=[];
 
-window.login = async function(){
- const email = prompt("Enter Email:");
- const password = prompt("Enter Password:");
- try{
-  await signInWithEmailAndPassword(auth,email,password);
- }catch(err){
-  alert(err.message);
- }
+window.showPage=function(page){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.getElementById(page).classList.add("active");
 };
 
-window.logout = function(){
- signOut(auth);
+loginBtn.onclick=()=>{
+ const email=prompt("Enter Email:");
+ const password=prompt("Enter Password:");
+ signInWithEmailAndPassword(auth,email,password)
+ .catch(err=>alert(err.message));
 };
 
-onAuthStateChanged(auth, async user=>{
+logoutBtn.onclick=()=>signOut(auth);
+
+onAuthStateChanged(auth,user=>{
  if(user){
-  const userDoc = await getDoc(doc(db,"users",user.uid));
-  if(userDoc.exists() && userDoc.data().role === "admin"){
+  loginBtn.style.display="none";
+  logoutBtn.style.display="inline-block";
+  if(user.email==="youradminemail@gmail.com"){
    isAdmin=true;
-   document.getElementById("adminPanel").style.display="block";
+   adminPanel.style.display="block";
   }
- } else {
+ }else{
+  loginBtn.style.display="inline-block";
+  logoutBtn.style.display="none";
+  adminPanel.style.display="none";
   isAdmin=false;
-  document.getElementById("adminPanel").style.display="none";
  }
+ loadProducts();
 });
 
-const productContainer=document.getElementById("productContainer");
-const adminProducts=document.getElementById("adminProducts");
+/* Real-time Products */
+function loadProducts(){
+ onSnapshot(collection(db,"products"),snap=>{
+  allProducts=[];
+  snap.forEach(d=>{
+   const p=d.data();
+   p.id=d.id;
+   allProducts.push(p);
+  });
+  displayProducts(allProducts);
+ });
+}
 
-onSnapshot(collection(db,"products"), snapshot=>{
- productContainer.innerHTML="";
- adminProducts.innerHTML="";
- allProducts=[];
- snapshot.forEach(docSnap=>{
-  const p=docSnap.data();
-  p.id=docSnap.id;
-  allProducts.push(p);
-
-  productContainer.innerHTML+=`
+function displayProducts(products){
+ productList.innerHTML="";
+ products.forEach(p=>{
+  productList.innerHTML+=`
    <div class="card">
-    <img src="${p.imageUrl}">
+    <img src="${p.image}">
     <h3>${p.title}</h3>
-    <p>${p.description}</p>
-    <div class="price">₹${p.price}</div>
-    <a href="${p.affiliateLink}" target="_blank">View Deal</a>
+    <p>${p.desc}</p>
+    <p><strong>₹${p.price}</strong></p>
+    <a href="${p.link}" target="_blank">View Deal →</a>
+    ${isAdmin?`<button class="deleteBtn" onclick="deleteProduct('${p.id}')">Delete</button>`:""}
    </div>
   `;
-
-  if(isAdmin){
-   adminProducts.innerHTML+=`
-    <div class="admin-card">
-     <div>${p.title}</div>
-     <button class="deleteBtn" onclick="deleteProduct('${p.id}')">Delete</button>
-    </div>
-   `;
-  }
-
  });
+}
+
+/* Search */
+searchBar.addEventListener("input",()=>{
+ const val=searchBar.value.toLowerCase();
+ const filtered=allProducts.filter(p=>
+  p.title.toLowerCase().includes(val) ||
+  p.desc.toLowerCase().includes(val)
+ );
+ displayProducts(filtered);
 });
 
-window.addProduct=async function(){
- const file=document.getElementById("imageFile").files[0];
- const storageRef=ref(storage,"products/"+file.name+Date.now());
- await uploadBytes(storageRef,file);
- const imageUrl=await getDownloadURL(storageRef);
-
- await addDoc(collection(db,"products"),{
-  title:title.value,
-  description:description.value,
-  price:price.value,
-  affiliateLink:affiliateLink.value,
-  category:category.value,
-  imageUrl:imageUrl
- });
-
- alert("Product Added");
+/* Add Product */
+window.addProduct=async()=>{
+ const reader=new FileReader();
+ reader.onload=async()=>{
+  await addDoc(collection(db,"products"),{
+   title:title.value,
+   desc:desc.value,
+   price:parseFloat(price.value),
+   link:link.value,
+   category:productCategory.value,
+   image:reader.result
+  });
+ };
+ reader.readAsDataURL(image.files[0]);
 };
 
-window.deleteProduct=async function(id){
+/* Delete */
+window.deleteProduct=async(id)=>{
  await deleteDoc(doc(db,"products",id));
 };
 
-document.getElementById("searchInput").addEventListener("input",()=>{
- const val=searchInput.value.toLowerCase();
- const filtered=allProducts.filter(p=>
-  p.title.toLowerCase().includes(val) ||
-  p.description.toLowerCase().includes(val)
- );
- productContainer.innerHTML="";
- filtered.forEach(p=>{
-  productContainer.innerHTML+=`
-   <div class="card">
-    <img src="${p.imageUrl}">
-    <h3>${p.title}</h3>
-    <p>${p.description}</p>
-    <div class="price">₹${p.price}</div>
-    <a href="${p.affiliateLink}" target="_blank">View Deal</a>
-   </div>
-  `;
- });
-});
+/* Logo */
+window.uploadLogo=function(){
+ const reader=new FileReader();
+ reader.onload=async()=>{
+  await addDoc(collection(db,"settings"),{logo:reader.result});
+  headerLogo.src=reader.result;
+  favicon.href=reader.result;
+ };
+ reader.readAsDataURL(logoUpload.files[0]);
+};
 
 </script>
-
 </body>
 </html>
-
