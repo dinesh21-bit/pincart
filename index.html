@@ -3,589 +3,811 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pincart </title>
-
-<link id="favicon" rel="icon" href="">
+<title>Pincart - Trending Products</title>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+
+/* =========================================================
+   GLOBAL RESET
+========================================================= */
 
 *{
- margin:0;
- padding:0;
- box-sizing:border-box;
- font-family:Poppins;
- scroll-behavior:smooth;
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body{
- background: radial-gradient(circle at 20% 20%,#0f2027,#203a43,#2c5364);
- color:white;
- min-height:100vh;
- overflow-x:hidden;
+background:#f4f6f9;
+min-height:100vh;
+transition:background 0.3s ease,color 0.3s ease;
 }
 
-/* ===== Animated Background ===== */
-body::before{
- content:"";
- position:fixed;
- width:600px;
- height:600px;
- background:radial-gradient(circle,#00f2fe55,transparent);
- top:-200px;
- left:-200px;
- filter:blur(120px);
- animation:moveBlob 12s infinite alternate ease-in-out;
- z-index:-1;
+/* =========================================================
+   DARK MODE
+========================================================= */
+
+body.dark-mode{
+background:#111;
+color:#eee;
 }
 
-body::after{
- content:"";
- position:fixed;
- width:600px;
- height:600px;
- background:radial-gradient(circle,#ff416c55,transparent);
- bottom:-200px;
- right:-200px;
- filter:blur(120px);
- animation:moveBlob2 14s infinite alternate ease-in-out;
- z-index:-1;
+body.dark-mode .card{
+background:#1e1e1e;
+color:white;
 }
 
-@keyframes moveBlob{
- from{transform:translate(0,0);}
- to{transform:translate(150px,100px);}
+body.dark-mode nav{
+background:#000;
 }
 
-@keyframes moveBlob2{
- from{transform:translate(0,0);}
- to{transform:translate(-150px,-100px);}
+/* =========================================================
+   NAVBAR
+========================================================= */
+
+nav{
+background:#111;
+color:white;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 30px;
+position:sticky;
+top:0;
+z-index:1000;
+box-shadow:0 4px 10px rgba(0,0,0,0.2);
 }
 
-/* ===== Header ===== */
-header{
- background:rgba(255,255,255,0.08);
- backdrop-filter:blur(25px);
- padding:18px 60px;
- display:flex;
- justify-content:space-between;
- align-items:center;
- position:sticky;
- top:0;
- z-index:1000;
- border-bottom:1px solid rgba(255,255,255,0.1);
- box-shadow:0 8px 30px rgba(0,0,0,0.4);
+.logo-area{
+display:flex;
+align-items:center;
+gap:12px;
 }
 
-header h1{
- display:flex;
- align-items:center;
- font-size:26px;
- font-weight:800;
- letter-spacing:1px;
+#siteLogo{
+width:45px;
+height:45px;
+border-radius:8px;
+object-fit:cover;
+transition:0.3s;
 }
 
-header img{
- width:45px;
- height:45px;
- margin-right:12px;
- border-radius:12px;
- box-shadow:0 0 20px rgba(0,242,254,0.8);
+.brand-name{
+font-size:22px;
+font-weight:bold;
+letter-spacing:1px;
 }
 
-nav a{
- color:white;
- margin:0 20px;
- text-decoration:none;
- font-weight:500;
- position:relative;
- cursor:pointer;
- transition:0.3s;
+.nav-links{
+display:flex;
+gap:15px;
+align-items:center;
 }
 
-nav a:hover{
- color:#00f2fe;
+.nav-links button{
+background:#ff4d4d;
+border:none;
+padding:8px 15px;
+color:white;
+border-radius:6px;
+cursor:pointer;
+transition:0.3s;
 }
 
-nav a::after{
- content:"";
- position:absolute;
- left:0;
- bottom:-5px;
- width:0%;
- height:2px;
- background:#00f2fe;
- transition:0.3s;
+.nav-links button:hover{
+background:#ff1a1a;
 }
 
-nav a:hover::after{
- width:100%;
+/* =========================================================
+   HAMBURGER (MOBILE)
+========================================================= */
+
+.hamburger{
+display:none;
+flex-direction:column;
+gap:5px;
+cursor:pointer;
 }
 
-/* ===== Buttons ===== */
-button{
- padding:10px 22px;
- border:none;
- border-radius:30px;
- cursor:pointer;
- font-weight:600;
- transition:0.3s;
- margin-top:8px;
+.hamburger span{
+width:25px;
+height:3px;
+background:white;
 }
 
-button:hover{
- transform:translateY(-3px);
- box-shadow:0 10px 25px rgba(0,0,0,0.5);
+/* =========================================================
+   SEARCH BAR
+========================================================= */
+
+.search-container{
+display:flex;
+justify-content:center;
+margin:25px 0;
+position:sticky;
+top:70px;
+z-index:900;
+background:inherit;
+padding:10px;
 }
 
-.deleteBtn{
- background:linear-gradient(45deg,#ff416c,#ff4b2b);
- color:white;
+#searchInput{
+width:60%;
+max-width:500px;
+padding:12px 20px;
+border-radius:30px;
+border:1px solid #ccc;
+outline:none;
+transition:0.3s;
 }
 
-#loginBtn{
- background:linear-gradient(45deg,#00f2fe,#4facfe);
- color:black;
+#searchInput:focus{
+border-color:#ff4d4d;
+box-shadow:0 0 10px rgba(255,77,77,0.3);
 }
 
-#logoutBtn{
- background:linear-gradient(45deg,#ff416c,#ff4b2b);
- color:white;
- display:none;
+/* =========================================================
+   CATEGORY FILTERS
+========================================================= */
+
+.category-bar{
+display:flex;
+justify-content:center;
+gap:10px;
+flex-wrap:wrap;
+margin-bottom:20px;
 }
 
-/* ===== Pages ===== */
-.page{
- display:none;
- padding:60px;
- animation:fade 0.5s ease-in-out;
+.category-bar button{
+padding:8px 15px;
+border:none;
+border-radius:20px;
+background:#ddd;
+cursor:pointer;
+transition:0.3s;
 }
 
-@keyframes fade{
- from{opacity:0;transform:translateY(20px);}
- to{opacity:1;transform:translateY(0);}
+.category-bar button:hover{
+background:#ff4d4d;
+color:white;
 }
 
-.active{display:block;}
+/* =========================================================
+   FEATURED SECTION
+========================================================= */
 
-/* ===== Products Grid ===== */
-.products{
- display:grid;
- grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
- gap:35px;
- margin-top:30px;
+#featuredSection{
+padding:20px;
+text-align:center;
+}
+
+#featuredSection h2{
+margin-bottom:15px;
+}
+
+/* =========================================================
+   PRODUCT GRID
+========================================================= */
+
+#productList{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px;
+padding:20px;
 }
 
 .card{
- background:rgba(255,255,255,0.07);
- backdrop-filter:blur(25px);
- padding:25px;
- border-radius:25px;
- transition:0.4s;
- box-shadow:0 20px 50px rgba(0,0,0,0.6);
- position:relative;
- overflow:hidden;
-}
-
-.card::before{
- content:"";
- position:absolute;
- top:0;
- left:-100%;
- width:100%;
- height:100%;
- background:linear-gradient(120deg,transparent,#ffffff22,transparent);
- transition:0.6s;
-}
-
-.card:hover::before{
- left:100%;
+background:white;
+border-radius:15px;
+overflow:hidden;
+box-shadow:0 10px 20px rgba(0,0,0,0.1);
+transition:0.3s;
+position:relative;
 }
 
 .card:hover{
- transform:translateY(-10px) scale(1.02);
- box-shadow:0 25px 60px rgba(0,242,254,0.4);
+transform:translateY(-6px);
 }
 
 .card img{
- width:100%;
- height:200px;
- object-fit:cover;
- border-radius:18px;
- margin-bottom:15px;
+width:100%;
+height:220px;
+object-fit:cover;
 }
 
-.card a{
- display:inline-block;
- margin-top:10px;
- color:#00f2fe;
- font-weight:600;
- text-decoration:none;
+.card-content{
+padding:15px;
 }
 
-.card a:hover{
- text-decoration:underline;
+.card h3{
+margin-bottom:10px;
+font-size:18px;
 }
 
-/* ===== Category Box ===== */
-.categoryBox{
- margin-bottom:50px;
- padding:20px;
- border-radius:20px;
- background:rgba(255,255,255,0.05);
- backdrop-filter:blur(20px);
- box-shadow:0 10px 40px rgba(0,0,0,0.4);
+.card button{
+background:#111;
+color:white;
+border:none;
+padding:8px 15px;
+border-radius:6px;
+cursor:pointer;
+transition:0.3s;
 }
 
-/* ===== Admin Panel ===== */
+.card button:hover{
+background:#333;
+}
+
+/* =========================================================
+   WISHLIST ICON
+========================================================= */
+
+.wishlist{
+position:absolute;
+top:10px;
+right:10px;
+background:white;
+border-radius:50%;
+padding:6px;
+cursor:pointer;
+box-shadow:0 2px 8px rgba(0,0,0,0.2);
+}
+
+.wishlist.active{
+background:red;
+color:white;
+}
+
+/* =========================================================
+   ADMIN PANEL
+========================================================= */
+
 #adminPanel{
- display:none;
- margin:60px;
- padding:40px;
- background:rgba(255,255,255,0.08);
- backdrop-filter:blur(25px);
- border-radius:30px;
- box-shadow:0 20px 60px rgba(0,0,0,0.7);
+display:none;
+background:white;
+padding:25px;
+margin:30px;
+border-radius:15px;
+box-shadow:0 10px 20px rgba(0,0,0,0.1);
+animation:fadeIn 0.4s ease;
 }
 
-.adminSection{
- margin-bottom:40px;
+.admin-group{
+margin-bottom:15px;
 }
 
-.adminSection input,
-.adminSection textarea,
-.adminSection select{
- width:100%;
- padding:14px;
- margin-top:12px;
- border:none;
- border-radius:14px;
- outline:none;
- background:rgba(255,255,255,0.12);
- color:white;
+.admin-group input{
+width:100%;
+padding:10px;
+margin-top:5px;
+border-radius:6px;
+border:1px solid #ccc;
 }
 
-.adminSection input:focus,
-.adminSection textarea:focus,
-.adminSection select:focus{
- background:rgba(0,242,254,0.15);
+.admin-group button{
+margin-top:10px;
+background:#111;
+color:white;
+padding:8px 15px;
+border:none;
+border-radius:6px;
+cursor:pointer;
 }
 
-.statsGrid{
- display:grid;
- grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
- gap:25px;
- margin-bottom:40px;
+/* =========================================================
+   TOAST NOTIFICATION
+========================================================= */
+
+#toast{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#111;
+color:white;
+padding:15px 20px;
+border-radius:10px;
+display:none;
 }
 
-.statCard{
- background:linear-gradient(135deg,#00f2fe33,#4facfe33);
- padding:25px;
- border-radius:25px;
- text-align:center;
- font-size:20px;
- font-weight:700;
- box-shadow:0 15px 40px rgba(0,0,0,0.5);
+/* =========================================================
+   LOADER
+========================================================= */
+
+#loader{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.5);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:2000;
 }
 
-/* ===== Footer ===== */
-footer{
- text-align:center;
- padding:30px;
- margin-top:60px;
- background:rgba(0,0,0,0.6);
- font-size:14px;
- letter-spacing:1px;
+.loader-circle{
+width:60px;
+height:60px;
+border:6px solid #fff;
+border-top:6px solid #ff4d4d;
+border-radius:50%;
+animation:spin 1s linear infinite;
 }
 
-/* ===== Scrollbar ===== */
-::-webkit-scrollbar{
- width:8px;
+/* =========================================================
+   ANIMATIONS
+========================================================= */
+
+@keyframes spin{
+to{ transform:rotate(360deg); }
 }
 
-::-webkit-scrollbar-thumb{
- background:#00f2fe;
- border-radius:10px;
+@keyframes fadeIn{
+from{opacity:0;}
+to{opacity:1;}
 }
 
-/* Extra spacing for design depth */
-h2{
- font-size:32px;
- font-weight:800;
- margin-bottom:20px;
- letter-spacing:1px;
+/* =========================================================
+   RESPONSIVE DESIGN
+========================================================= */
+
+@media(max-width:768px){
+
+nav{
+flex-direction:row;
 }
 
-h3{
- font-weight:700;
- margin-bottom:10px;
+.nav-links{
+display:none;
+flex-direction:column;
+background:#111;
+position:absolute;
+top:60px;
+right:0;
+padding:15px;
+width:200px;
 }
 
-/* Additional UI polish spacing to ensure 500+ lines */
-.page p{
- line-height:1.8;
- font-weight:300;
- opacity:0.9;
+.nav-links.active{
+display:flex;
+}
+
+.hamburger{
+display:flex;
+}
+
+#searchInput{
+width:90%;
+}
+
 }
 
 </style>
 </head>
-
 <body>
 
-<header>
- <h1>
-  <img id="headerLogo" src="Screenshot 2026-02-27 230824.png">
-  Pincart
- </h1>
-
- <nav>
-   <a onclick="showPage('homePage')">Home</a>
-   <a onclick="showPage('categoryPage')">Categories</a>
-   <a onclick="showPage('aboutPage')">About</a>
- </nav>
-
- <div>
-  <button id="loginBtn">Login</button>
-  <button id="logoutBtn">Logout</button>
- </div>
-</header>
-
-<div id="homePage" class="page active">
- <h2>🔥🥵 Trending Products</h2>
- <div class="products" id="productList"></div>
+<nav>
+<div class="logo-area">
+<img id="siteLogo" src="" alt="Logo">
+<div class="brand-name">Pincart</div>
 </div>
 
-<div id="categoryPage" class="page">
- <h2>📂 Categories</h2>
- <div id="categoryContainer"></div>
+<div class="hamburger" onclick="toggleMenu()">
+<span></span>
+<span></span>
+<span></span>
 </div>
 
-<div id="aboutPage" class="page">
- <h2>About Pincart</h2>
- <p><b>Pincart</b>  is a multi-category affiliate platform that showcases trending and high-demand products from trusted marketplaces.
-We simplify product discovery by bringing viral and value-driven finds into one place.
+<div class="nav-links" id="navLinks">
+<button onclick="toggleDarkMode()">Dark Mode</button>
+<button onclick="showAdmin()">Admin</button>
+<button onclick="logoutUser()">Logout</button>
+</div>
+</nav>
 
-🚀 Vision
+<div class="search-container">
+<input type="text" id="searchInput" placeholder="Search trending products...">
+</div>
 
-To become a trusted destination for discovering trending products across categories.
-To build a recognized digital brand that makes smart shopping simple and accessible.
+<div class="category-bar">
+<button onclick="filterCategory('all')">All</button>
+<button onclick="filterCategory('tech')">Tech</button>
+<button onclick="filterCategory('fashion')">Fashion</button>
+<button onclick="filterCategory('home')">Home</button>
+</div>
 
-🎯 Mission
+<section id="featuredSection">
+<h2>🔥 Featured Products</h2>
+<div id="featuredProducts"></div>
+</section>
 
-To curate and feature only high-performing, trending products for modern shoppers.
-To provide a seamless, fast, and user-friendly browsing experience through trusted affiliate links..</p>
+<div id="productList"></div>
+
+<div id="toast"></div>
+
+<div id="loader">
+<div class="loader-circle"></div>
 </div>
 
 <div id="adminPanel">
+<h2>Admin Panel</h2>
 
- <div class="statsGrid">
-   <div class="statCard">Total Products: <span id="totalProducts">0</span></div>
-   <div class="statCard">Total Categories: <span id="totalCategories">0</span></div>
- </div>
+<div class="admin-group">
+<label>Product Name</label>
+<input type="text" id="productName">
+</div>
 
- <div class="adminSection">
-  <h3>Upload Logo</h3>
-  <input type="file" id="logoUpload">
-  <button onclick="uploadLogo()">Update Logo</button>
- </div>
+<div class="admin-group">
+<label>Product Image URL</label>
+<input type="text" id="productImage">
+</div>
 
- <div class="adminSection">
-  <h3>Add Category</h3>
-  <input type="text" id="categoryName" placeholder="Category Name">
-  <button onclick="addCategory()">Add Category</button>
- </div>
+<div class="admin-group">
+<label>Affiliate Link</label>
+<input type="text" id="productLink">
+</div>
 
- <div class="adminSection">
-  <h3>Add Product</h3>
-  <input type="text" id="title" placeholder="Title">
-  <textarea id="desc" placeholder="Description"></textarea>
-  <input type="number" id="price" placeholder="Price">
-  <input type="text" id="link" placeholder="Affiliate Link">
-  <select id="productCategory"></select>
-  <input type="file" id="image">
-  <button onclick="addProduct()">Add Product</button>
- </div>
+<div class="admin-group">
+<label>Category (tech/fashion/home)</label>
+<input type="text" id="productCategory">
+</div>
+
+<div class="admin-group">
+<button onclick="addProduct()">Add Product</button>
+</div>
+
+<hr><br>
+
+<h3>Upload Logo (Permanent)</h3>
+<input type="file" id="logoUpload">
+<button onclick="uploadLogo()">Upload Logo</button>
+
+<br><br>
+
+<h3>Upload Background Image</h3>
+<input type="file" id="bgUpload">
+<button onclick="uploadBackground()">Upload Background</button>
 
 </div>
 
-<footer>
- © 2026 Pincart — Affiliate Platform | contact : pincart61@gmail.com
-</footer>
+ <script type="module">
 
-
-<!-- YOUR ORIGINAL SCRIPT REMAINS 100% UNCHANGED BELOW -->
-
-<script type="module">
+/* =========================================================
+   FIREBASE IMPORTS
+========================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, onSnapshot, deleteDoc, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+/* =========================================================
+   FIREBASE CONFIG (KEEP YOURS)
+========================================================= */
 
 const firebaseConfig = {
- apiKey: "AIzaSyDG48UV13XoQ1qtw5xtpnDnSwtmi4MUw84",
- authDomain: "pincart-245f7.firebaseapp.com",
- projectId: "pincart-245f7",
- storageBucket: "pincart-245f7.firebasestorage.app",
- messagingSenderId: "812846953819",
- appId: "1:812846953819:web:5e2eb1b090e62c2367567e"
+apiKey: "YOUR_API_KEY",
+authDomain: "YOUR_AUTH_DOMAIN",
+projectId: "YOUR_PROJECT_ID",
+storageBucket: "YOUR_BUCKET",
+messagingSenderId: "YOUR_ID",
+appId: "YOUR_APP_ID"
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
+const auth = getAuth(app);
+const storage = getStorage(app);
 
-let isAdmin=false;
-let allProducts=[];
-let allCategories=[];
+/* =========================================================
+   GLOBAL STATE
+========================================================= */
 
-window.showPage=function(page){
- document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
- document.getElementById(page).classList.add("active");
-};
+let allProducts = [];
+let currentCategory = "all";
+let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
 
-document.getElementById("loginBtn").onclick=()=>{
- const email=prompt("Enter Email:");
- const password=prompt("Enter Password:");
- signInWithEmailAndPassword(auth,email,password)
-  .catch(err=>alert(err.message));
-};
+/* =========================================================
+   TOAST SYSTEM
+========================================================= */
 
-document.getElementById("logoutBtn").onclick=()=>signOut(auth);
+function showToast(message){
+const toast = document.getElementById("toast");
+toast.innerText = message;
+toast.style.display="block";
+setTimeout(()=>{ toast.style.display="none"; },3000);
+}
 
-onAuthStateChanged(auth, async(user)=>{
- if(user){
-  loginBtn.style.display="none";
-  logoutBtn.style.display="inline-block";
-  isAdmin=true;
-  adminPanel.style.display="block";
- }else{
-  loginBtn.style.display="inline-block";
-  logoutBtn.style.display="none";
-  adminPanel.style.display="none";
-  isAdmin=false;
- }
- await loadProducts();
- await loadCategories();
+/* =========================================================
+   LOADER CONTROL
+========================================================= */
+
+function showLoader(){
+document.getElementById("loader").style.display="flex";
+}
+
+function hideLoader(){
+document.getElementById("loader").style.display="none";
+}
+
+/* =========================================================
+   DARK MODE
+========================================================= */
+
+window.toggleDarkMode = function(){
+document.body.classList.toggle("dark-mode");
+}
+
+/* =========================================================
+   MOBILE MENU
+========================================================= */
+
+window.toggleMenu = function(){
+document.getElementById("navLinks").classList.toggle("active");
+}
+
+/* =========================================================
+   ADMIN VISIBILITY
+========================================================= */
+
+window.showAdmin = function(){
+document.getElementById("adminPanel").style.display="block";
+}
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+window.logoutUser = function(){
+signOut(auth);
+showToast("Logged out");
+}
+
+/* =========================================================
+   ADMIN EMAIL RESTRICTION
+========================================================= */
+
+onAuthStateChanged(auth,(user)=>{
+if(user){
+if(user.email !== "youradminemail@gmail.com"){
+document.getElementById("adminPanel").style.display="none";
+}
+}
 });
 
-async function loadProducts(){
- const snap=await getDocs(collection(db,"products"));
- allProducts=[];
- snap.forEach(docSnap=>{
-  const p=docSnap.data();
-  p.id=docSnap.id;
-  allProducts.push(p);
- });
- displayProducts(allProducts);
- totalProducts.innerText=allProducts.length;
+/* =========================================================
+   ADD PRODUCT
+========================================================= */
+
+window.addProduct = async function(){
+
+const name = document.getElementById("productName").value;
+const image = document.getElementById("productImage").value;
+const link = document.getElementById("productLink").value;
+const category = document.getElementById("productCategory").value;
+
+if(!name || !image || !link || !category){
+showToast("Fill all fields");
+return;
 }
 
-function displayProducts(products){
- productList.innerHTML="";
- products.forEach(p=>{
-  productList.innerHTML+=`
-   <div class="card">
-    <img src="${p.image}">
-    <h3>${p.title}</h3>
-    <p>${p.desc}</p>
-    <p><strong>₹${p.price}</strong></p>
-    <a href="${p.link}" target="_blank">View Deal →</a>
-    ${isAdmin ? `<button class="deleteBtn" onclick="deleteProduct('${p.id}')">Delete</button>` : ""}
-   </div>
-  `;
- });
+showLoader();
+
+await addDoc(collection(db,"products"),{
+name,
+image,
+link,
+category,
+views:0,
+createdAt:Date.now()
+});
+
+hideLoader();
+showToast("Product Added Successfully");
 }
 
-async function loadCategories(){
- const snap=await getDocs(collection(db,"categories"));
- allCategories=[];
- productCategory.innerHTML="";
- categoryContainer.innerHTML="";
+/* =========================================================
+   REALTIME PRODUCT LISTENER
+========================================================= */
 
- snap.forEach(docSnap=>{
-  const c=docSnap.data();
-  c.id=docSnap.id;
-  allCategories.push(c);
-  productCategory.innerHTML+=`<option>${c.name}</option>`;
+onSnapshot(collection(db,"products"),(snapshot)=>{
+allProducts = [];
+snapshot.forEach(docSnap=>{
+allProducts.push({id:docSnap.id,...docSnap.data()});
+});
+renderProducts();
+renderFeatured();
+});
 
-  const filtered=allProducts.filter(p=>p.category===c.name);
+/* =========================================================
+   RENDER PRODUCTS
+========================================================= */
 
-  let productHTML="";
-  filtered.forEach(p=>{
-   productHTML+=`
-    <div class="card">
-      <img src="${p.image}">
-      <h3>${p.title}</h3>
-      ${isAdmin ? `<button class="deleteBtn" onclick="deleteProduct('${p.id}')">Delete</button>` : ""}
-    </div>
-   `;
-  });
+function renderProducts(){
 
-  categoryContainer.innerHTML+=`
-   <div class="categoryBox">
-    <h3>
-      ${c.name}
-      ${isAdmin ? `<button class="deleteBtn" onclick="deleteCategory('${c.id}')">Delete</button>` : ""}
-    </h3>
-    <div class="products">${productHTML}</div>
-   </div>
-  `;
- });
+const productList = document.getElementById("productList");
+productList.innerHTML="";
 
- totalCategories.innerText=allCategories.length;
+let filtered = allProducts;
+
+if(currentCategory !== "all"){
+filtered = filtered.filter(p=>p.category===currentCategory);
 }
 
-window.deleteProduct=async(id)=>{
- await deleteDoc(doc(db,"products",id));
- await loadProducts();
- await loadCategories();
-};
+filtered.forEach(product=>{
 
-window.deleteCategory=async(id)=>{
- await deleteDoc(doc(db,"categories",id));
- await loadCategories();
-};
+productList.innerHTML+=`
+<div class="card">
+<div class="wishlist ${wishlist.includes(product.id) ? "active":""}" onclick="toggleWishlist('${product.id}')">❤</div>
+<img src="${product.image}" loading="lazy">
+<div class="card-content">
+<h3>${product.name}</h3>
+<p>Views: ${product.views}</p>
+<button onclick="trackView('${product.id}','${product.link}')">Buy Now</button>
+<button onclick="deleteProduct('${product.id}')">Delete</button>
+</div>
+</div>
+`;
 
-window.addCategory=async()=>{
- const name=categoryName.value;
- await addDoc(collection(db,"categories"),{name});
- loadCategories();
-};
+});
 
-window.addProduct=async()=>{
- const reader=new FileReader();
- reader.onload=async()=>{
-  await addDoc(collection(db,"products"),{
-   title:title.value,
-   desc:desc.value,
-   price:parseFloat(price.value),
-   link:link.value,
-   category:productCategory.value,
-   image:reader.result
-  });
-  loadProducts();
- };
- reader.readAsDataURL(image.files[0]);
-};
+}
 
-window.uploadLogo=function(){
- const file=logoUpload.files[0];
- const reader=new FileReader();
- reader.onload=function(){
-  headerLogo.src=reader.result;
-  favicon.href=reader.result;
- };
- reader.readAsDataURL(file);
-};
+/* =========================================================
+   FEATURED PRODUCTS (Top 3 by Views)
+========================================================= */
+
+function renderFeatured(){
+const featuredDiv = document.getElementById("featuredProducts");
+featuredDiv.innerHTML="";
+
+let topProducts = [...allProducts]
+.sort((a,b)=>b.views - a.views)
+.slice(0,3);
+
+topProducts.forEach(p=>{
+featuredDiv.innerHTML+=`
+<div style="margin-bottom:10px;">
+<strong>${p.name}</strong> - ${p.views} views
+</div>
+`;
+});
+}
+
+/* =========================================================
+   CATEGORY FILTER
+========================================================= */
+
+window.filterCategory = function(cat){
+currentCategory = cat;
+renderProducts();
+}
+
+/* =========================================================
+   SEARCH FILTER
+========================================================= */
+
+document.getElementById("searchInput").addEventListener("input",function(){
+const searchValue = this.value.toLowerCase();
+
+const cards = document.querySelectorAll(".card");
+
+cards.forEach(card=>{
+const text = card.innerText.toLowerCase();
+card.style.display = text.includes(searchValue) ? "block":"none";
+});
+});
+
+/* =========================================================
+   VIEW TRACKING
+========================================================= */
+
+window.trackView = async function(id,link){
+
+await updateDoc(doc(db,"products",id),{
+views:increment(1)
+});
+
+window.open(link,"_blank");
+}
+
+/* =========================================================
+   DELETE PRODUCT
+========================================================= */
+
+window.deleteProduct = async function(id){
+
+if(confirm("Delete this product?")){
+await deleteDoc(doc(db,"products",id));
+showToast("Product Deleted");
+}
+
+}
+
+/* =========================================================
+   WISHLIST SYSTEM
+========================================================= */
+
+window.toggleWishlist = function(id){
+
+if(wishlist.includes(id)){
+wishlist = wishlist.filter(item=>item!==id);
+showToast("Removed from Wishlist");
+}else{
+wishlist.push(id);
+showToast("Added to Wishlist");
+}
+
+localStorage.setItem("wishlist",JSON.stringify(wishlist));
+renderProducts();
+}
+
+/* =========================================================
+   LOGO UPLOAD PERMANENT
+========================================================= */
+
+window.uploadLogo = async function(){
+
+const file = document.getElementById("logoUpload").files[0];
+if(!file){ showToast("Select file"); return; }
+
+showLoader();
+
+const logoRef = ref(storage,"branding/logo.png");
+await uploadBytes(logoRef,file);
+const url = await getDownloadURL(logoRef);
+
+localStorage.setItem("pincartLogo",url);
+document.getElementById("siteLogo").src = url;
+
+hideLoader();
+showToast("Logo Updated");
+}
+
+/* Load Logo */
+const savedLogo = localStorage.getItem("pincartLogo");
+if(savedLogo){
+document.getElementById("siteLogo").src = savedLogo;
+}
+
+/* =========================================================
+   BACKGROUND UPLOAD PERMANENT
+========================================================= */
+
+window.uploadBackground = async function(){
+
+const file = document.getElementById("bgUpload").files[0];
+if(!file){ showToast("Select file"); return; }
+
+showLoader();
+
+const bgRef = ref(storage,"branding/background.png");
+await uploadBytes(bgRef,file);
+const url = await getDownloadURL(bgRef);
+
+localStorage.setItem("pincartBG",url);
+document.body.style.backgroundImage=`url(${url})`;
+document.body.style.backgroundSize="cover";
+
+hideLoader();
+showToast("Background Updated");
+}
+
+/* Load Background */
+const savedBG = localStorage.getItem("pincartBG");
+if(savedBG){
+document.body.style.backgroundImage=`url(${savedBG})`;
+document.body.style.backgroundSize="cover";
+}
+
+/* =========================================================
+   AUTO LOAD ON START
+========================================================= */
+
+renderProducts();
+renderFeatured();
 
 </script>
 </body>
 </html>
-
-
-
-
-
