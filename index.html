@@ -3,25 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pincart Pro</title>
+<title>Pincart Ultra</title>
 
 <link id="favicon" rel="icon">
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
+<style>
 *{
  margin:0;
  padding:0;
  box-sizing:border-box;
- font-family:Poppins;
+ font-family:'Poppins',sans-serif;
 }
 
 body{
- background: radial-gradient(circle at 20% 20%,#0f2027,#203a43,#2c5364);
- color:white;
  min-height:100vh;
+ background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+ color:white;
  overflow-x:hidden;
+ transition:0.4s;
+}
+
+/* Floating Glow Background */
+body::before{
+ content:"";
+ position:fixed;
+ width:500px;
+ height:500px;
+ background:radial-gradient(circle,#00f2fe55,transparent);
+ top:-150px;
+ left:-150px;
+ filter:blur(120px);
+ z-index:-1;
+}
+
+body::after{
+ content:"";
+ position:fixed;
+ width:500px;
+ height:500px;
+ background:radial-gradient(circle,#ff416c55,transparent);
+ bottom:-150px;
+ right:-150px;
+ filter:blur(120px);
+ z-index:-1;
 }
 
 /* Header */
@@ -35,6 +61,7 @@ header{
  position:sticky;
  top:0;
  z-index:1000;
+ border-bottom:1px solid rgba(255,255,255,0.1);
 }
 
 header h1{
@@ -49,76 +76,90 @@ header img{
  height:45px;
  margin-right:12px;
  border-radius:12px;
+ box-shadow:0 0 15px #00f2fe;
 }
 
 nav a{
  margin:0 15px;
  cursor:pointer;
  font-weight:500;
+ transition:0.3s;
 }
 
-/* Buttons */
+nav a:hover{
+ color:#00f2fe;
+}
+
 button{
  padding:10px 20px;
  border:none;
  border-radius:25px;
  cursor:pointer;
  font-weight:600;
- margin-top:8px;
+ transition:0.3s;
 }
 
-.deleteBtn{
- background:#ff416c;
- color:white;
+button:hover{
+ transform:translateY(-3px);
+ box-shadow:0 10px 25px rgba(0,0,0,0.5);
 }
 
-#loginBtn{
- background:#00f2fe;
-}
-
-#logoutBtn{
- background:#ff416c;
- color:white;
- display:none;
-}
+#loginBtn{background:#00f2fe;color:black;}
+#logoutBtn{background:#ff416c;color:white;display:none;}
+.deleteBtn{background:#ff416c;color:white;}
 
 /* Pages */
 .page{
  display:none;
- padding:40px;
+ padding:50px;
+ animation:fade 0.5s ease;
 }
 
 .active{display:block;}
+
+@keyframes fade{
+ from{opacity:0;transform:translateY(20px);}
+ to{opacity:1;transform:translateY(0);}
+}
 
 /* Search */
 #searchBar{
  width:100%;
  max-width:500px;
- padding:12px;
- margin-bottom:20px;
- border-radius:12px;
+ padding:14px;
+ margin-bottom:25px;
+ border-radius:15px;
  border:none;
  background:rgba(255,255,255,0.1);
  color:white;
+ outline:none;
+}
+
+#searchBar:focus{
+ box-shadow:0 0 15px #00f2fe;
 }
 
 /* Grid */
 .products{
  display:grid;
  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
- gap:25px;
+ gap:30px;
 }
 
 .card{
  background:rgba(255,255,255,0.07);
+ backdrop-filter:blur(20px);
  padding:20px;
  border-radius:20px;
- box-shadow:0 15px 40px rgba(0,0,0,0.6);
- transition:0.3s;
+ box-shadow:0 20px 50px rgba(0,0,0,0.6);
+ transition:0.4s;
+ position:relative;
+ overflow:hidden;
 }
 
 .card:hover{
- transform:translateY(-5px);
+ transform:translateY(-8px) scale(1.02);
+ box-shadow:0 25px 60px rgba(0,242,254,0.4);
 }
 
 .card img{
@@ -126,7 +167,13 @@ button{
  height:180px;
  object-fit:cover;
  border-radius:15px;
- margin-bottom:10px;
+ margin-bottom:12px;
+}
+
+.card a{
+ color:#00f2fe;
+ font-weight:600;
+ text-decoration:none;
 }
 
 .categoryBox{
@@ -142,7 +189,9 @@ button{
  padding:40px;
  background:rgba(255,255,255,0.08);
  margin:40px;
- border-radius:20px;
+ border-radius:25px;
+ backdrop-filter:blur(25px);
+ box-shadow:0 20px 60px rgba(0,0,0,0.7);
 }
 
 .adminSection{
@@ -155,17 +204,18 @@ button{
  width:100%;
  padding:12px;
  margin-top:10px;
- border-radius:10px;
+ border-radius:12px;
  border:none;
- background:rgba(255,255,255,0.1);
+ background:rgba(255,255,255,0.12);
  color:white;
 }
 
+/* Footer */
 footer{
  text-align:center;
  padding:20px;
- margin-top:40px;
- background:#00000050;
+ margin-top:50px;
+ background:#00000060;
 }
 
 /* Loader */
@@ -191,8 +241,11 @@ footer{
  animation:spin 1s linear infinite;
 }
 
-@keyframes spin{
- to{transform:rotate(360deg);}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+@media(max-width:768px){
+ header{flex-direction:column;gap:10px;}
+ .page{padding:25px;}
 }
 </style>
 </head>
@@ -260,9 +313,7 @@ footer{
 
 </div>
 
-<div id="loader">
- <div class="loader-circle"></div>
-</div>
+<div id="loader"><div class="loader-circle"></div></div>
 
 <footer>
  © 2026 Pincart — Affiliate Platform
@@ -276,22 +327,21 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, getDocs }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
- apiKey: "AIzaSyDG48UV13XoQ1qtw5xtpnDnSwtmi4MUw84",
- authDomain: "pincart-245f7.firebaseapp.com",
- projectId: "pincart-245f7",
- storageBucket: "pincart-245f7.firebasestorage.app",
- messagingSenderId: "812846953819",
- appId: "1:812846953819:web:5e2eb1b090e62c2367567e"
+const firebaseConfig={
+ apiKey:"AIzaSyDG48UV13XoQ1qtw5xtpnDnSwtmi4MUw84",
+ authDomain:"pincart-245f7.firebaseapp.com",
+ projectId:"pincart-245f7",
+ storageBucket:"pincart-245f7.firebasestorage.app",
+ messagingSenderId:"812846953819",
+ appId:"1:812846953819:web:5e2eb1b090e62c2367567e"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
 
 let isAdmin=false;
 let allProducts=[];
-let allCategories=[];
 
 window.showPage=function(page){
  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
@@ -302,22 +352,18 @@ loginBtn.onclick=()=>{
  const email=prompt("Enter Email:");
  const password=prompt("Enter Password:");
  signInWithEmailAndPassword(auth,email,password)
-  .catch(err=>alert(err.message));
+ .catch(err=>alert(err.message));
 };
 
 logoutBtn.onclick=()=>signOut(auth);
 
-onAuthStateChanged(auth,(user)=>{
+onAuthStateChanged(auth,user=>{
  if(user){
   loginBtn.style.display="none";
   logoutBtn.style.display="inline-block";
-
   if(user.email==="youradminemail@gmail.com"){
    isAdmin=true;
    adminPanel.style.display="block";
-  }else{
-   isAdmin=false;
-   adminPanel.style.display="none";
   }
  }else{
   loginBtn.style.display="inline-block";
@@ -325,13 +371,10 @@ onAuthStateChanged(auth,(user)=>{
   adminPanel.style.display="none";
   isAdmin=false;
  }
-
  loadProducts();
- loadCategories();
- loadLogo();
 });
 
-/* Real-time products */
+/* Real-time Products */
 function loadProducts(){
  onSnapshot(collection(db,"products"),snap=>{
   allProducts=[];
@@ -370,45 +413,6 @@ searchBar.addEventListener("input",()=>{
  displayProducts(filtered);
 });
 
-/* Categories */
-async function loadCategories(){
- const snap=await getDocs(collection(db,"categories"));
- allCategories=[];
- productCategory.innerHTML="";
- categoryContainer.innerHTML="";
-
- snap.forEach(d=>{
-  const c=d.data();
-  c.id=d.id;
-  allCategories.push(c);
-  productCategory.innerHTML+=`<option>${c.name}</option>`;
-
-  const filtered=allProducts.filter(p=>p.category===c.name);
-
-  let html="";
-  filtered.forEach(p=>{
-   html+=`
-    <div class="card">
-     <img src="${p.image}">
-     <h3>${p.title}</h3>
-    </div>
-   `;
-  });
-
-  categoryContainer.innerHTML+=`
-   <div class="categoryBox">
-    <h3>${c.name}</h3>
-    <div class="products">${html}</div>
-   </div>
-  `;
- });
-}
-
-/* Add Category */
-window.addCategory=async()=>{
- await addDoc(collection(db,"categories"),{name:categoryName.value});
-};
-
 /* Add Product */
 window.addProduct=async()=>{
  const reader=new FileReader();
@@ -435,21 +439,12 @@ window.uploadLogo=function(){
  const reader=new FileReader();
  reader.onload=async()=>{
   await addDoc(collection(db,"settings"),{logo:reader.result});
+  headerLogo.src=reader.result;
+  favicon.href=reader.result;
  };
  reader.readAsDataURL(logoUpload.files[0]);
 };
 
-async function loadLogo(){
- const snap=await getDocs(collection(db,"settings"));
- snap.forEach(d=>{
-  if(d.data().logo){
-   headerLogo.src=d.data().logo;
-   favicon.href=d.data().logo;
-  }
- });
-}
-
 </script>
 </body>
 </html>
-
