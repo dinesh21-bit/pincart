@@ -413,6 +413,28 @@ To provide a seamless, fast, and user-friendly browsing experience through trust
  © 2026 Pincart — Affiliate Platform | contact : pincart61@gmail.com
 </footer>
 
+ // Load logo from localStorage on page load
+window.addEventListener("DOMContentLoaded",()=>{
+ const savedLogo=localStorage.getItem("pincartLogo");
+ if(savedLogo){
+  headerLogo.src=savedLogo;
+  favicon.href=savedLogo;
+ }
+});
+
+// Override uploadLogo function (without changing structure)
+window.uploadLogo=function(){
+ const file=logoUpload.files[0];
+ const reader=new FileReader();
+ reader.onload=function(){
+  headerLogo.src=reader.result;
+  favicon.href=reader.result;
+
+  // Save permanently
+  localStorage.setItem("pincartLogo",reader.result);
+ };
+ reader.readAsDataURL(file);
+};
 <!-- YOUR ORIGINAL SCRIPT REMAINS 100% UNCHANGED BELOW -->
 
 <script type="module">
@@ -583,4 +605,5 @@ window.uploadLogo=function(){
 </script>
 </body>
 </html>
+
 
